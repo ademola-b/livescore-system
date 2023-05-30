@@ -33,8 +33,27 @@
                 <div class="col-sm-10">
                     {{form.coach}}
                 </div>
+              </div>
+
+              <div class="row mb-3">
+                {% if form.tournaments.errors %}
+                  <div class="alert alert-danger mt-2" role="alert">
+                    {{ form.tournaments.errors }}
+                  </div>
+                {% endif %}
+                <label class="col-sm-2 col-form-label" for="basic-default-name">Tournaments</label>
+                <div class="col-sm-10">
+                  {% if tournaments %}
+                    {{form.tournaments}}
+                  {% else %}
+                    <h5 style="color:red;">No tournaments</h5>
+                </div>
+                  {% endif %}
+                
                 
               </div>
+
+
                 <hr/>
                 <div class="modal-footer">
                   <button type="submit" class="btn btn-primary">Submit</button>

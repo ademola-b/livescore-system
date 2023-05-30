@@ -4,7 +4,7 @@
       <!-- Modal content-->
       <div class="modal-content">
         <div class="modal-header">
-            <h4 class="modal-title">Add Team</h4>
+            <h4 class="modal-title">Add Fixture</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <hr/>
@@ -12,29 +12,56 @@
           <form method="post">
             {% csrf_token %}
               <div class="row mb-3">
-                {% if form.deptName.errors %}
+                {% if form.tournament.errors %}
                   <div class="alert alert-danger mt-2" role="alert">
-                    {{ form.deptName.errors }}
+                    {{ form.tournament.errors }}
                   </div>
                 {% endif %}
-                <label class="col-sm-2 col-form-label" for="basic-default-name">Department</label>
+                <label class="col-sm-2 col-form-label" for="basic-default-name">Tournament</label>
                 <div class="col-sm-10">
-                    {{form.deptName}}
+                    {{form.tournament}}
                 </div>
               </div>
               
               <div class="row mb-3">
-                {% if form.coach.errors %}
+                {% if form.home_team.errors %}
                   <div class="alert alert-danger mt-2" role="alert">
-                    {{ form.coach.errors }}
+                    {{ form.home_team.errors }}
                   </div>
                 {% endif %}
-                <label class="col-sm-2 col-form-label" for="basic-default-name">COACH</label>
+                <label class="col-sm-2 col-form-label" for="basic-default-name">Home</label>
                 <div class="col-sm-10">
-                    {{form.coach}}
+                    {{form.home_team}}
                 </div>
                 
               </div>
+              
+              <div class="row mb-3">
+                {% if form.away_team.errors %}
+                  <div class="alert alert-danger mt-2" role="alert">
+                    {{ form.away_team.errors }}
+                  </div>
+                {% endif %}
+                <label class="col-sm-2 col-form-label" for="basic-default-name">Away</label>
+                <div class="col-sm-10">
+                    {{form.away_team}}
+                </div>
+                
+              </div>
+
+              <div class="row mb-3">
+                {% if form.match_date_time.errors %}
+                  <div class="alert alert-danger mt-2" role="alert">
+                    {{ form.match_date_time.errors }}
+                  </div>
+                {% endif %}
+                <label class="col-sm-2 col-form-label" for="basic-default-name">Match Date and Time</label>
+                <div class="col-sm-10">
+                    {{form.match_date_time}}
+                </div>
+                
+              </div>
+
                 <hr/>
                 <div class="modal-footer">
                   <button type="submit" class="btn btn-primary">Submit</button>

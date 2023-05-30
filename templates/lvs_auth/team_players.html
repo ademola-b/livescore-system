@@ -71,8 +71,9 @@
                                       <td>{{player.assists}}</td>
                                       <td>{{player.is_captain}}</td>                                   
                                       <td>
-                                        <a href="#" class="btn btn-warning">EDIT</a>
-                                        <a href="#" class="btn btn-danger">DELETE</a>
+                                        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modalSamp">EDIT</button>
+                                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModalSamp">DELETE</button>
+                                        {% include 'utils/player_delete_modal.html' %}
                                     </td>                                    
                                   </tr>
                               {% endfor %}

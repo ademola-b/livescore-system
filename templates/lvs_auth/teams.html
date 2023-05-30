@@ -36,8 +36,7 @@
                     <div class="container">
                       {% include 'utils/messages.html' %}
                       <div class="row mb-4 justify-content-end">
-                        <div class="col-md-4 ml-auto">
-
+                        <div class="col-md-4 ml-auto mb-4">
                           <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalSamp">Add Team</button>
                           {% include 'utils/team_modal.html' %}
                         </div>
@@ -57,7 +56,7 @@
                                       <td>{{team.deptName}}</a></td>
                                       <td>{{team.coach}}</td>
                                       <td>
-                                          <a href="{% url 'auth:team_players' team.id %}" class="btn btn-primary">PLAYERS</a>
+                                          <a href="{% url 'auth:team_players' team.team_id %}" class="btn btn-primary">PLAYERS</a>
                                           <a href="#" class="btn btn-warning">EDIT</a>
                                           <a href="#" class="btn btn-danger">DELETE</a>
                                       </td>  

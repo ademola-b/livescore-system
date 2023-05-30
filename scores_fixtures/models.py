@@ -6,7 +6,7 @@ class Fixture(models.Model):
     tournament = models.OneToOneField(Tournament, on_delete=models.CASCADE)
     home_team = models.ForeignKey(Team, related_name='home_team', on_delete=models.CASCADE)
     away_team = models.ForeignKey(Team, related_name='away_team', on_delete=models.CASCADE)
-    match_date_time = models.DateTimeField(auto_now_add=False, auto_now=True)
+    match_date_time = models.DateTimeField()
 
     def __str__(self):
         return "{0} vs {1}".format(self.home_team, self.away_team)
