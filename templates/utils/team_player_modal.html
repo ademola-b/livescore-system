@@ -1,0 +1,83 @@
+<div id="modalSamp" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+  
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Add Player</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <hr/>
+        <div class="modal-body">
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+              <div class="row mb-3">
+                {% if form.name.errors %}
+                  <div class="alert alert-danger mt-2" role="alert">
+                    {{ form.name.errors }}
+                  </div>
+                {% endif %}
+                <label class="col-sm-2 col-form-label" for="basic-default-name">Name</label>
+                <div class="col-sm-10">
+                    {{form.name}}
+                </div>
+              </div>
+              
+              <div class="row mb-3">
+                {% if form.image.errors %}
+                  <div class="alert alert-danger mt-2" role="alert">
+                    {{ form.image.errors }}
+                  </div>
+                {% endif %}
+                <label class="col-sm-2 col-form-label" for="basic-default-name">Image</label>
+                <div class="col-sm-10">
+                    {{form.image}}
+                </div>
+              </div>
+              
+              <div class="row mb-3">
+                {% if form.age.errors %}
+                  <div class="alert alert-danger mt-2" role="alert">
+                    {{ form.age.errors }}
+                  </div>
+                {% endif %}
+                <label class="col-sm-2 col-form-label" for="basic-default-name">Age</label>
+                <div class="col-sm-10">
+                    {{form.age}}
+                </div>
+              </div>
+              
+              <div class="row mb-3">
+                {% if form.jersey_number.errors %}
+                  <div class="alert alert-danger mt-2" role="alert">
+                    {{ form.jersey_number.errors }}
+                  </div>
+                {% endif %}
+                <label class="col-sm-2 col-form-label" for="basic-default-name">Jersey Number</label>
+                <div class="col-sm-10">
+                    {{form.jersey_number}}
+                </div>
+              </div>
+              
+              <div class="row mb-3">
+                {% if form.position.errors %}
+                  <div class="alert alert-danger mt-2" role="alert">
+                    {{ form.position.errors }}
+                  </div>
+                {% endif %}
+                <label class="col-sm-2 col-form-label" for="basic-default-name">Position</label>
+                <div class="col-sm-10">
+                    {{form.position}}
+                </div>
+              </div>
+              
+                <hr/>
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+          </form>
+        </div>
+      </div>
+  
+    </div>
+  </div>

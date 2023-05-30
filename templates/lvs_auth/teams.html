@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}{% include 'utils/auth_head.html' %}{% endblock head %}
+{% block title %}Teams{% endblock title %}
+{% block body %}
+
+    <!-- Layout wrapper -->
+    <div class="layout-wrapper layout-content-navbar">
+      <div class="layout-container">
+        <!-- Menu -->
+
+        {% block aside %}{% include 'utils/aside.html' %}{% endblock aside %}
+        <!-- / Menu -->
+
+        <!-- Layout container -->
+        <div class="layout-page">
+          <!-- Navbar -->
+
+          {% include 'utils/nav.html' %}
+
+          <!-- Content wrapper -->
+          <div class="content-wrapper">
+            <!-- Content -->
+
+            <div class="container-xxl flex-grow-1 container-p-y">
+              <div class="row">
+                <div class="col-lg-12 mb-4 order-0">
+                  <div class="card">
+                    <div class="d-flex align-items-end row">
+                      <div class="col-sm-7">
+                        <div class="card-body">
+                          <h3 class="card-title text-primary">Manage Teams</h3>
+                        </div>      
+                      </div> 
+                    </div>
+                    <div class="container">
+                      {% include 'utils/messages.html' %}
+                      <div class="row mb-4 justify-content-end">
+                        <div class="col-md-4 ml-auto">
+
+                          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalSamp">Add Team</button>
+                          {% include 'utils/team_modal.html' %}
+                        </div>
+                      </div>
+                        <div class="row mb-5">
+                          <div class="col-md-12">
+                            {% if teams %}
+                            <table class="table table-bordered table-striped">
+                              <tr>
+                                  <th>NAME</th>
+                                  <th>COACH</th>
+                                  <th>ACTION</th>                
+                              </tr>
+                              {% for team in teams %}
+                                             
+                                  <tr>
+                                      <td>{{team.deptName}}</a></td>
+                                      <td>{{team.coach}}</td>
+                                      <td>
+                                          <a href="{% url 'auth:team_players' team.id %}" class="btn btn-primary">PLAYERS</a>
+                                          <a href="#" class="btn btn-warning">EDIT</a>
+                                          <a href="#" class="btn btn-danger">DELETE</a>
+                                      </td>  
+                                  </tr>
+                              {% endfor %}
+                          </table>
+                            {% else %}
+                            <div class="col text-center">
+                              <h4 class="">No record of teams</h4>
+                            </div>
+                            {% endif %}
+                          </div>
+                        </div>
+                        
+                      </div>
+
+                  </div>
+
+                  
+                </div>
+                
+                
+
+                </div>
+            </div>
+            <!-- / Content -->
+
+            <!-- Footer -->
+            {% include 'utils/footer.html' %}
+
+            <!-- / Footer -->
+
+            <div class="content-backdrop fade"></div>
+          </div>
+          <!-- Content wrapper -->
+        </div>
+        <!-- / Layout page -->
+      </div>
+
+   
+    </div>
+    <!-- / Layout wrapper -->
+    {% include 'utils/scripts.html' %}
+   
+  
+{% endblock body %}

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block head %}{% include 'utils/auth_head.html' %}{% endblock head %}
+
+{% block body %}
+    <div class="container" style="width: 40%">
+        <div class="authentication-wrapper authentication-basic container-p-y">
+        <div class="authentication-inner">
+            <!-- Register -->
+            <div class="card">
+                <div class="card-body">
+                    <br>
+                    <h4 class="mb-2">Welcome Admin! 👋</h4>
+                    <p class="mb-4">Please sign-in to your account</p>
+
+                    <form id="formAuthentication" class="mb-3" method="POST">
+                        {% include 'utils/messages.html' %}
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                {{form.errors}}
+                            </div>
+                        {% endif %}
+                            {% csrf_token %}
+                            <div class="mb-3"> 
+                                {% for field in form %}
+                                    <div class="form-label"> 
+                                        {{field.label}}
+                                    </div>
+                                    {{field}}
+                                    <br>
+                                {% endfor %}
+                            </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="remember-me" />
+                                <label class="form-check-label" for="remember-me"> Remember Me </label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <button class="btn btn-primary d-grid w-100" type="submit" style="color: black">Sign in</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- /Register -->
+        </div>
+        </div>
+    </div>
+{% endblock body %}
+
+
+
+           
+        
+
