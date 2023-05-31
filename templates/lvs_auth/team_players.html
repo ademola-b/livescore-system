@@ -63,7 +63,7 @@
                                              
                                   <tr>
                                       <td>{{player.name}}</td>
-                                      <td><img src="{{player.image.url}}" alt="player's image" width="100" height="100"></td>
+                                      <td><img src="{{player.image.url}}" alt="player's image" width="70" height="70"></td>
                                       <td>{{player.age}}</td>
                                       <td>{{player.jersey_number}}</td>
                                       <td>{{player.position}}</td>
@@ -71,12 +71,43 @@
                                       <td>{{player.assists}}</td>
                                       <td>{{player.is_captain}}</td>                                   
                                       <td>
-                                        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modalSamp">EDIT</button>
-                                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModalSamp">DELETE</button>
-                                        {% include 'utils/player_delete_modal.html' %}
-                                    </td>                                    
-                                  </tr>
-                              {% endfor %}
+                                  
+                                        <a href="{% url 'auth:update_player' player.id %}" class="btn btn-warning">EDIT</a>
+                                     
+
+                                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete{{forloop.counter}}">DELETE</button>
+
+                                        <div id="delete{{forloop.counter}}" class="modal fade" role="dialog">
+                                          <div class="modal-dialog">
+                                        
+                                            <!-- Modal content-->
+                                            <div class="modal-content">
+                                              <div class="modal-header">
+                                                  <h4 class="modal-title">Delete Player</h4>
+                                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                              </div>
+                                              <hr/>
+                                              <div class="modal-body">
+                                                <form action="{% url 'auth:delete_player' player.id %}" method="post">
+                                                  {% csrf_token %}
+                                                    
+                                                    <div class="row mb-3">
+                                                      <h5>Are you sure you want to delete {{player.name}}?</h4>
+                                                    </div>
+                                                      <input type="hidden" value="{{team_pk}}" name="team_pk">
+                                                      <hr/>
+                                                      <div class="modal-footer">
+                                                        <button type="submit" class="btn btn-danger">Submit</button>
+                                                      </div>
+                                                </form>
+                                              </div>
+                                            </div>
+                                        
+                                          </div>
+                                        </div>
+                                      </td>                                    
+                                    </tr>
+                                    {% endfor %}
                           </table>
                             {% else %}
                             <div class="col text-center">
