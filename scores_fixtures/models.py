@@ -3,7 +3,7 @@ from django.db import models
 from tournament.models import Tournament, Team
 # Create your models here.
 class Fixture(models.Model):
-    tournament = models.OneToOneField(Tournament, on_delete=models.CASCADE)
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
     home_team = models.ForeignKey(Team, related_name='home_team', on_delete=models.CASCADE)
     away_team = models.ForeignKey(Team, related_name='away_team', on_delete=models.CASCADE)
     match_date_time = models.DateTimeField()
@@ -12,7 +12,7 @@ class Fixture(models.Model):
         return "{0} vs {1}".format(self.home_team, self.away_team)
 
 class Match(models.Model):
-    fixture = models.OneToOneField(Fixture, on_delete=models.CASCADE)
+    fixture = models.ForeignKey(Fixture, on_delete=models.CASCADE)
     home_team_score = models.CharField(max_length=10, default=0, blank=True, null=True,)
     away_team_score = models.CharField(max_length=10, default=0, blank=True, null=True,)
     home_team_formation = models.CharField(max_length=10)

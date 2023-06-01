@@ -57,7 +57,7 @@
                                       <td>{{team.coach}}</td>
                                       <td>
                                           <a href="{% url 'auth:team_players' team.team_id %}" class="btn btn-primary">PLAYERS</a>
-                                          <a href="#" class="btn btn-warning">EDIT</a>
+                                          <a href="{% url 'auth:update_team' team.pk %}" class="btn btn-warning">EDIT</a>
                                           <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete{{forloop.counter}}">DELETE</button>
                                           
                                           <div id="delete{{forloop.counter}}" class="modal fade" role="dialog">
@@ -77,7 +77,6 @@
                                                       <div class="row mb-3">
                                                         <h5>Are you sure you want to delete {{team.deptName}}?</h4>
                                                       </div>
-                                                        <input type="hidden" value="{{team_pk}}" name="team_pk">
                                                         <hr/>
                                                         <div class="modal-footer">
                                                           <button type="submit" class="btn btn-danger">Submit</button>

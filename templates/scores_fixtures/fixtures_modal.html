@@ -11,7 +11,7 @@
         <div class="modal-body">
           <form method="post">
             {% csrf_token %}
-              <div class="row mb-3">
+              {% comment %} <div class="row mb-3">
                 {% if form.tournament.errors %}
                   <div class="alert alert-danger mt-2" role="alert">
                     {{ form.tournament.errors }}
@@ -21,7 +21,7 @@
                 <div class="col-sm-10">
                     {{form.tournament}}
                 </div>
-              </div>
+              </div> {% endcomment %}
               
               <div class="row mb-3">
                 {% if form.home_team.errors %}

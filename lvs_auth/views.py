@@ -58,16 +58,49 @@ class TeamsView(ListView, FormView):
         if form.is_valid():
             instance = form.save(commit=False)
             instance.save()
+            form.save_m2m()
             messages.success(self.request, "Team Succesfully Added")
             return redirect("auth:team")
-
         else:
             messages.error(self.request, f"An error occured: {form.errors}")
             return self.form_invalid(form)
-   
-# class TeamFormView(View):
-#     form_class = TeamForm
-#     template_name = 'utils/team_modal.html'
+
+class DeleteTeam(SuccessMessageMixin, DeleteView):
+    model = Team
+    success_message = 'Team Deleted Successfully'
+    
+    def get_success_url(self):
+        return reverse_lazy('auth:team')
+
+class UpdateTeam(SuccessMessageMixin, UpdateView):
+    model = Team
+    template_name = "lvs_auth/update_team.html"
+    form_class = TeamForm
+    success_message = "Team detail updated"
+
+    def get(self, request, pk, *args, **kwargs):
+        team_detail = Team.objects.get(team_id= pk)
+        form = self.form_class(instance = team_detail)
+        # team_tournament = Team.objects.filter(tournaments__name__in = [x for x in Tournament.objects.all()])
+        team_tournament = Team.objects.filter(tournaments__id = 2)
+        tourn = Tournament.objects.all()
+        print(f"tournaments: {team_tournament}")
+        form.fields['deptName'].required = False
+        # form.fields['tournaments'].initial = Team.objects.filter(tournaments = tourn.id)
+        return render(request, self.template_name, {"form":form, "team":team_detail})
+    
+    def post(self, request, pk):
+        team_detail = Team.objects.get(team_id= pk)
+        form = self.form_class(request.POST, instance=team_detail)
+        if form.is_valid():
+            instance = form.save(commit=False)
+            instance.deptName = team_detail.deptName
+            instance.save()
+            
+            return self.form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('auth:team')
 
 class TeamPlayers(ListView, FormView):
     model = Player
@@ -104,10 +137,6 @@ class TeamPlayers(ListView, FormView):
             messages.error(self.request, f"An error occured")
             return self.form_invalid(form)
 
-# class TeamPlayersFormView(View):
-#     form_class = TeamPlayerForm
-#     template_name = 'utils/team_player_modal.html'
-
 class DeletePlayer(SuccessMessageMixin, DeleteView):
     model = Player
     success_message = 'Player Deleted Successfully'
@@ -116,17 +145,8 @@ class DeletePlayer(SuccessMessageMixin, DeleteView):
     def get_success_url(self):
         return reverse_lazy('auth:team_players', kwargs={'pk': self.request.POST['team_pk']} )
     
-class DeleteTeam(SuccessMessageMixin, DeleteView):
-    model = Team
-    success_message = 'Team Deleted Successfully'
-    
-    def get_success_url(self):
-        return reverse_lazy('auth:team')
-
-
 class UpdatePlayer(UpdateView):
     model = Player
-    # template_name = "utils/update_player.html"
     template_name = "lvs_auth/update_player.html"
     form_class = TeamPlayerForm
 
@@ -134,14 +154,6 @@ class UpdatePlayer(UpdateView):
         player_detail = Player.objects.get(id= pk)
         form = self.form_class(instance = player_detail)
         return render(request, self.template_name, {"form":form})
-
-    # def get_context_data(self, **kwargs: Any):
-    #     context = super().get_context_data(**kwargs)
-    #     print("hello")
-    #     context['form'] = self.form_class(instance = player)
-    #     context['form'].fields['name'].initial = "player_detail.name"
-    #     context['act'] = 'Update'
-    #     return context
 
     def get_success_url(self):
         return reverse_lazy('auth:team_players', kwargs={'pk': self.request.POST['team_pk']} )

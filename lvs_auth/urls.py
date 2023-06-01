@@ -1,6 +1,6 @@
 from django.urls import path
 from . views import (LoginView, DashboardView,TeamsView, 
-                     TeamPlayers, DeleteTeam, 
+                     TeamPlayers, DeleteTeam, UpdateTeam, 
                       DeletePlayer, UpdatePlayer)
 
 
@@ -9,6 +9,7 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name="login"),
     path('dashboard/', DashboardView.as_view(), name="dashboard"),
     path('teams/', TeamsView.as_view(), name='team'),
+    path('teams/<str:pk>/update/', UpdateTeam.as_view(), name='update_team'),
     path('teams/<str:pk>/delete/', DeleteTeam.as_view(), name='delete_team'),
     # path('add-team/', TeamFormView.as_view(), name='team_form'),
     path('<str:pk>/players/', TeamPlayers.as_view(), name='team_players'),

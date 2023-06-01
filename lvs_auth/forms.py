@@ -23,7 +23,7 @@ class TeamForm(forms.ModelForm):
         }
     )) 
 
-    tournaments = forms.ModelMultipleChoiceField(queryset = Tournament.objects.all(), required = True, widget=forms.CheckboxSelectMultiple()) 
+    tournaments = forms.ModelMultipleChoiceField(queryset = Tournament.objects.all(), required = False, widget=forms.CheckboxSelectMultiple()) 
 
     class Meta:
         model = Team
