@@ -71,10 +71,8 @@
                                       <td>{{player.assists}}</td>
                                       <td>{{player.is_captain}}</td>                                   
                                       <td>
-                                  
-                                        <a href="{% url 'auth:update_player' player.id %}" class="btn btn-warning">EDIT</a>
-                                     
 
+                                        <a href="{% url 'auth:update_player' player.id %}" class="btn btn-warning">EDIT</a>
                                         <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete{{forloop.counter}}">DELETE</button>
 
                                         <div id="delete{{forloop.counter}}" class="modal fade" role="dialog">

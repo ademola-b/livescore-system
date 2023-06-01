@@ -57,14 +57,6 @@ class TeamsView(ListView, FormView):
         form = self.form_class(request.POST)
         if form.is_valid():
             instance = form.save(commit=False)
-            # team_check = Team.objects.filter(deptName = instance.deptName).exists()
-            # if team_check:
-            #     team = Team.objects.get(deptName = instance.deptName)
-            #     team.coach = form.cleaned_data['coach']
-            #     team.tournaments = form.cleaned_data['tournaments']
-            #     team.save()
-            #     messages.success(self.request, "Team Details Succesfully Updated")
-            # else:
             instance.save()
             messages.success(self.request, "Team Succesfully Added")
             return redirect("auth:team")
@@ -92,10 +84,6 @@ class TeamPlayers(ListView, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['team_pk'] = self.kwargs['pk']
-
-        # queryset = kwargs.pop('object_list', None)
-        # if queryset is None:
-        #     self.object_list = self.model.objects.filter(team_id = self.kwargs['pk'])
         return context
 
     def post(self, request, pk, *args, **kwargs):
@@ -127,20 +115,13 @@ class DeletePlayer(SuccessMessageMixin, DeleteView):
     
     def get_success_url(self):
         return reverse_lazy('auth:team_players', kwargs={'pk': self.request.POST['team_pk']} )
-
-def updatePlayer(request, player_id):
-    player = get_object_or_404(Player, id=player_id)
-    if request.method == "POST":
-        form = TeamPlayerForm(request.POST, instance=player)
-        if form.is_valid():
-            player.save()
-            form.save()
-            return redirect(reverse('auth:team_players'))
     
-    else:
-        form = TeamPlayerForm(instance=player)
+class DeleteTeam(SuccessMessageMixin, DeleteView):
+    model = Team
+    success_message = 'Team Deleted Successfully'
     
-    return render(request, "lvs_auth/team_players.html")
+    def get_success_url(self):
+        return reverse_lazy('auth:team')
 
 
 class UpdatePlayer(UpdateView):
