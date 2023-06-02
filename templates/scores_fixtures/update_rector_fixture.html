@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}{% include 'utils/auth_head.html' %}{% endblock head %}
+{% block title %}Update Fixture{% endblock title %}
+{% block body %}
+
+    <!-- Layout wrapper -->
+    <div class="layout-wrapper layout-content-navbar">
+      <div class="layout-container">
+        <!-- Menu -->
+
+        {% block aside %}{% include 'utils/aside.html' %}{% endblock aside %}
+        <!-- / Menu -->
+
+        <!-- Layout container -->
+        <div class="layout-page">
+          <!-- Navbar -->
+
+          {% include 'utils/nav.html' %}
+
+          <!-- Content wrapper -->
+          <div class="content-wrapper">
+            <!-- Content -->
+
+            <div class="container-xxl flex-grow-1 container-p-y">
+              <div class="row">
+                <div class="col-lg-12 mb-4 order-0">
+                  <div class="card">
+                    <div class="d-flex align-items-end row">
+                      <div class="col-sm-7">
+                        <div class="card-body">
+                          <h3 class="card-title text-primary">Update Fixture</h3>
+                        </div>      
+                      </div> 
+                    </div>
+                    <div class="container">
+                      {% include 'utils/messages.html' %}
+                   
+                      <form method="post">
+                        {% csrf_token %}
+                            
+                          <div class="row mb-3">
+                            {% if form.home_team.errors %}
+                              <div class="alert alert-danger mt-2" role="alert">
+                                {{ form.home_team.errors }}
+                              </div>
+                            {% endif %}
+                            <label class="col-sm-2 col-form-label" for="basic-default-name">Home</label>
+                            <div class="col-sm-10">
+                                {{form.home_team}}
+                            </div>
+                            
+                          </div>
+                          
+                          <div class="row mb-3">
+                            {% if form.away_team.errors %}
+                              <div class="alert alert-danger mt-2" role="alert">
+                                {{ form.away_team.errors }}
+                              </div>
+                            {% endif %}
+                            <label class="col-sm-2 col-form-label" for="basic-default-name">Away</label>
+                            <div class="col-sm-10">
+                                {{form.away_team}}
+                            </div>
+                            
+                          </div>
+            
+                          <div class="row mb-3">
+                            {% if form.match_date_time.errors %}
+                              <div class="alert alert-danger mt-2" role="alert">
+                                {{ form.match_date_time.errors }}
+                              </div>
+                            {% endif %}
+                            <label class="col-sm-2 col-form-label" for="basic-default-name">Match Date and Time</label>
+                            <div class="col-sm-10">
+                                {{form.match_date_time}}
+                            </div>
+                            
+                          </div>
+            
+                            <hr/>
+                            <div class="modal-footer">
+                              <button type="submit" class="btn btn-primary">Update</button>
+                            </div>
+                      </form>
+                        
+                    </div>
+
+                  </div>
+
+                  
+                </div>
+                
+                
+
+                </div>
+            </div>
+            <!-- / Content -->
+
+            <!-- Footer -->
+            {% include 'utils/footer.html' %}
+
+            <!-- / Footer -->
+
+            <div class="content-backdrop fade"></div>
+          </div>
+          <!-- Content wrapper -->
+        </div>
+        <!-- / Layout page -->
+      </div>
+
+   
+    </div>
+    <!-- / Layout wrapper -->
+    {% include 'utils/scripts.html' %}
+   
+  
+{% endblock body %}

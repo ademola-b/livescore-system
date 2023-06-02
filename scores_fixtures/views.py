@@ -1,20 +1,26 @@
-from typing import List
+import datetime
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import ListView, FormView, TemplateView, View
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
+from django.utils import timezone
+from django.views.generic import (ListView, FormView, TemplateView,
+                                   View, UpdateView, DeleteView)
 from django.shortcuts import render, redirect
 
 
 from . forms import FixturesForm
-from . models import Fixture, Tournament, Team
+from . models import Fixture, Tournament, Team, Match
 # Create your views here.
-class HomeView(View):
+class HomeView(LoginRequiredMixin, View):
+    login_url = "auth:login"
     def get(self, request):
         return render(request, 'scores_fixtures/index.html')
 
-class FixturesView(SuccessMessageMixin, TemplateView, ListView, FormView):
+class FixturesView(LoginRequiredMixin, SuccessMessageMixin, TemplateView, ListView, FormView):
+    login_url = "auth:login"
     model = Fixture
-    # context_object_name = "rector"
+    context_object_name = "rector"
     template_name = "scores_fixtures/rector_fixtures.html"
     object_list = Fixture.objects.all()
     success_message = "Fixtures Added"
@@ -34,39 +40,38 @@ class FixturesView(SuccessMessageMixin, TemplateView, ListView, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        rector_fixture = Tournament.objects.get(name = "rector_cup")
-        print(f"templa_name: {self.kwargs['template_name']}")
-        if self.kwargs['template_name'] == "rector-cup":
-            context["rector_fixture"] = Fixture.objects.filter(tournament__name = "rector_cup")
-            print(f"dept fixture: {context['rector_fixture']}")
-            
-        elif self.kwargs['template_name'] == "departmental":
-            context["dept_fixture"] = Fixture.objects.filter(tournament__name = "departmental")
-      
-        return context
-    
-    def get(self, request, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
-        print(f"context: {context}")
+        # load form
         form = self.form_class()
         form.fields['tournament'].required = False
-        template_names = self.get_template_names()
         template_name = self.kwargs['template_name']
-
         if template_name == "rector-cup":
             tournament = Tournament.objects.get(name="rector_cup")
+            print(f"tournament: {tournament}")
             form.fields['home_team'].queryset = Team.objects.filter(tournaments = tournament)
             form.fields['away_team'].queryset = Team.objects.filter(tournaments = tournament)
+            print("fixed")
         elif template_name == "departmental":
             tournament = Tournament.objects.get(name="departmental")
             form.fields['home_team'].queryset = Team.objects.filter(tournaments = tournament)
             form.fields['away_team'].queryset = Team.objects.filter(tournaments = tournament)
-            
+
+        # add to context based on the template_name
+        if self.kwargs['template_name'] == "rector-cup":
+            context["rector_fixture"] = Fixture.objects.filter(tournament__name = "rector_cup")            
+        elif self.kwargs['template_name'] == "departmental":
+            context["dept_fixture"] = Fixture.objects.filter(tournament__name = "departmental")
+
+        # add form and template_name to context
+        context['form'] = form
+        context['template_name'] = template_name
+        return context
+    
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)            
         return self.render_to_response(context)
-        # return render(request, template_names, {"form":form})
 
     def post(self, request, *args, **kwargs):
-        context = super().get_context_data(self, **kwargs)
+        context = self.get_context_data(**kwargs)
         
         form = self.form_class(request.POST)
         form.fields['tournament'].required = False
@@ -77,39 +82,159 @@ class FixturesView(SuccessMessageMixin, TemplateView, ListView, FormView):
             form.fields['home_team'].queryset = Team.objects.filter(tournaments = tournament)
             form.fields['away_team'].queryset = Team.objects.filter(tournaments = tournament)
             if form.is_valid():
-                print("form valid")
                 instance = form.save(commit=False)
                 instance.home_team = form.cleaned_data['home_team']
                 instance.away_team = form.cleaned_data['away_team']
-                print(f"Both teams: {instance.home_team} - {instance.away_team}")
+                instance.match_date_time = form.cleaned_data['match_date_time']
+
                 if instance.home_team == instance.away_team:
                     messages.warning(request, "Both teams should be different")
                     return redirect("scores:fixtures", self.kwargs['template_name'])
+                
+                 # compare supplied date
+                if instance.match_date_time.__lt__(timezone.now()):
+                    messages.warning(request, "Older dates can't be supplied")
+                    return redirect("scores:fixtures", self.kwargs['template_name'])
+                    
                 instance.tournament = tournament
                 instance.save()
             
                 return redirect("scores:fixtures", self.kwargs['template_name'])
             else:
                 messages.error(request, f"An error occurred: {form.errors.as_text}")
-        elif template_name == "department":
-            tournament = Tournament.objects.get(name="rector_cup")
+        elif template_name == "departmental":
+            tournament = Tournament.objects.get(name="departmental")
+            form.fields['home_team'].queryset = Team.objects.filter(tournaments = tournament)
+            form.fields['away_team'].queryset = Team.objects.filter(tournaments = tournament)
             if form.is_valid():
                 instance = form.save(commit=False)
+                instance.home_team = form.cleaned_data['home_team']
+                instance.away_team = form.cleaned_data['away_team']
+                instance.match_date_time = form.cleaned_data['match_date_time']
+
+                if instance.home_team == instance.away_team:
+                    messages.warning(request, "Both teams should be different")
+                    return redirect("scores:fixtures", self.kwargs['template_name'])
+                
+                # compare date supplied
+                if instance.match_date_time.__lt__(timezone.now()):
+                    messages.warning(request, "Older dates can't be supplied")
+                    return redirect("scores:fixtures", self.kwargs['template_name'])
+                    
                 instance.tournament = tournament
                 instance.save()
             
                 return redirect("scores:fixtures", self.kwargs['template_name'])
+            else:
+                messages.error(request, f"An error occurred: {form.errors.as_text}")
         else:
             messages.error(request, f"An error occured: {form.errors.as_text}")
             return redirect("scores:fixtures", self.kwargs['template_name'])
         
         return self.render_to_response(context)
 
-        # return render(request, self.template_name)
-            
-
-class RectorFixture(View):
+class UpdateFixtureView(LoginRequiredMixin, SuccessMessageMixin, UpdateView): 
+    login_url = "auth:login"
     model = Fixture
+    template_name = "scores_fixtures/update_rector_fixture.html"
+    form_class = FixturesForm
+    success_message = "Fixtures Updated Successfully"
+
+    def get(self, request, pk, *args, **kwargs):
+        fixture_detail = self.model.objects.get(id = pk)
+        form = self.form_class(instance = fixture_detail)
+
+        template_name = self.kwargs['template_name']
+        if template_name == "rector-cup":
+            tournament = Tournament.objects.get(name="rector_cup")
+            form.fields['home_team'].queryset = Team.objects.filter(tournaments = tournament)
+            form.fields['away_team'].queryset = Team.objects.filter(tournaments = tournament)
+            print("fixed")
+        elif template_name == "departmental":
+            tournament = Tournament.objects.get(name="departmental")
+            form.fields['home_team'].queryset = Team.objects.filter(tournaments = tournament)
+            form.fields['away_team'].queryset = Team.objects.filter(tournaments = tournament)
+
+        # form.fields['home_team'].initial = Team.objects.get(deptName = fixture_detail.home_team.deptName)
+        # form.fields['home_team'].queryset = Team.objects.filter(deptName = fixture_detail.home_team.deptName)
+        return render(request, self.template_name, {"form":form})
+    
+    def post(self, request, pk, *args, **kwargs):
+        fixture_detail = self.model.objects.get(id = pk)
+        form = self.form_class(request.POST, instance = fixture_detail)
+        form.fields['tournament'].required = False
+        template_name = self.kwargs['template_name']
+
+        if template_name == "rector-cup":
+            tournament = Tournament.objects.get(name="rector_cup")
+            form.fields['home_team'].queryset = Team.objects.filter(tournaments = tournament)
+            form.fields['away_team'].queryset = Team.objects.filter(tournaments = tournament)
+            if form.is_valid():
+                instance = form.save(commit=False)
+                instance.home_team = form.cleaned_data['home_team']
+                instance.away_team = form.cleaned_data['away_team']
+                instance.match_date_time = form.cleaned_data['match_date_time']
+
+                if instance.home_team == instance.away_team:
+                    messages.warning(request, "Both teams can't be the same")
+                    return redirect("scores:update_fixture", self.kwargs['template_name'], self.kwargs['pk'])
+                
+                 # compare supplied date
+                if instance.match_date_time.__lt__(timezone.now()):
+                    messages.warning(request, "Older dates can't be supplied")
+                    return redirect("scores:update_fixture", self.kwargs['template_name'], self.kwargs['pk'])
+                    
+                instance.tournament = tournament
+                instance.save()
+            
+                return redirect("scores:fixtures", self.kwargs['template_name'])
+            else:
+                messages.error(request, f"An error occurred: {form.errors.as_text}")
+        elif template_name == "departmental":
+            tournament = Tournament.objects.get(name="departmental")
+            form.fields['home_team'].queryset = Team.objects.filter(tournaments = tournament)
+            form.fields['away_team'].queryset = Team.objects.filter(tournaments = tournament)
+            if form.is_valid():
+                instance = form.save(commit=False)
+                instance.home_team = form.cleaned_data['home_team']
+                instance.away_team = form.cleaned_data['away_team']
+                instance.match_date_time = form.cleaned_data['match_date_time']
+
+                if instance.home_team == instance.away_team:
+                    messages.warning(request, "Both teams should be different")
+                    return redirect("scores:fixtures", self.kwargs['template_name'])
+                
+                # compare date supplied
+                if instance.match_date_time.__lt__(timezone.now()):
+                    messages.warning(request, "Older dates can't be supplied")
+                    return redirect("scores:fixtures", self.kwargs['template_name'])
+                    
+                instance.tournament = tournament
+                instance.save()
+            
+                return redirect("scores:fixtures", self.kwargs['template_name'])
+            else:
+                messages.error(request, f"An error occurred: {form.errors.as_text}")
+        else:
+            messages.error(request, f"An error occured: {form.errors.as_text}")
+            return redirect("scores:fixtures", self.kwargs['template_name'])
+        
+        return render(request, self.template_name, {"form":form}) 
+
+    def get_success_url(self):
+        return reverse_lazy('scores:fixtures', kwargs={'template_name': self.request.POST['template_name']})
+
+class DeleteFixtureView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+    login_url = "auth:login"
+    model = Fixture
+    success_message = "Fixture Deleted Successfully"
+
+    def get_success_url(self):
+        return reverse_lazy('scores:fixtures', kwargs={'template_name': self.request.POST['template_name']})
+
+class MatchesView(LoginRequiredMixin, View):
+    login_url = "auth:login"
+    model = Match
 
 
 

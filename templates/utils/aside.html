@@ -77,7 +77,7 @@
       </li>
 
       <li class="menu-header small text-uppercase">
-        <span class="menu-header-text">Fixtures</span>
+        <span class="menu-header-text">Matches</span>
       </li>
 
       <li class="menu-item {% if request.path == "" %}active{% endif %}">
@@ -135,21 +135,12 @@
           </ul>
         </li>
 
-
-
-
         <li class="menu-item {% if request.path == '/auth/teams/' or 'players' in request.path %} active{% endif %}">
           <a href="{% url 'auth:team' %}" class="menu-link">
             <i class="menu-icon tf-icons bx bx-home-circle"></i>
             <div data-i18n="Analytics">Manage Teams</div>
           </a>
         </li>
-      {% comment %} <li class="menu-item {% if request.path == '//index/' %}active{% endif %}">
-        <a href="index.html" class="menu-link">
-          <i class="menu-icon tf-icons bx bx-home-circle"></i>
-          <div data-i18n="Analytics">Manage Players</div>
-        </a>
-      </li> {% endcomment %}
       {% endif %}
       
 
