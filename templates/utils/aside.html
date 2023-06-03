@@ -69,31 +69,14 @@
 
     <ul class="menu-inner py-1">
       <!-- Dashboard -->
-      <li class="menu-item {% if request.path == '/auth/dashboard/' %}active{% endif %}">
-        <a href="{% url 'auth:dashboard' %}" class="menu-link">
-          <i class="menu-icon tf-icons bx bx-home-circle"></i>
-          <div data-i18n="Analytics">Dashboard</div>
-        </a>
-      </li>
-
-      <li class="menu-header small text-uppercase">
-        <span class="menu-header-text">Matches</span>
-      </li>
-
-      <li class="menu-item {% if request.path == "" %}active{% endif %}">
-        <a href="#" class="menu-link">
-          <i class="menu-icon tf-icons bx bx-home-circle"></i>
-          <div data-i18n="Analytics">Rector's Cup</div>
-        </a>
-      </li>
-      <li class="menu-item {% if request.path == "" %}active{% endif %}">
-        <a href="index.html" class="menu-link">
-          <i class="menu-icon tf-icons bx bx-home-circle"></i>
-          <div data-i18n="Analytics">HOD</div>
-        </a>
-      </li>
-
+      
       {% if request.user.is_staff %}
+        <li class="menu-item {% if request.path == '/auth/dashboard/' %}active{% endif %}">
+          <a href="{% url 'auth:dashboard' %}" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-home-circle"></i>
+            <div data-i18n="Analytics">Dashboard</div>
+          </a>
+        </li>
       
         <li class="menu-header small text-uppercase"><span class="menu-header-text">Admin Fixtures</span></li>
         <!-- Extended components -->
@@ -141,10 +124,31 @@
             <div data-i18n="Analytics">Manage Teams</div>
           </a>
         </li>
-      {% endif %}
-      
+      {% else %}
+        <li class="menu-item active">
+          <a href="{% url 'scores:index' %}" class="menu-link">
+            <i class="menu-icon tf-icons bx bx-home-circle"></i>
+            <div data-i18n="Analytics">Dashboard</div>
+          </a>
+        </li>
 
-      
+      <li class="menu-header small text-uppercase">
+        <span class="menu-header-text">Matches</span>
+      </li>
+
+      <li class="menu-item {% if request.path == "" %}active{% endif %}">
+        <a href="#" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-home-circle"></i>
+          <div data-i18n="Analytics">Rector's Cup</div>
+        </a>
+      </li>
+      <li class="menu-item {% if request.path == "" %}active{% endif %}">
+        <a href="index.html" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-home-circle"></i>
+          <div data-i18n="Analytics">Departmental</div>
+        </a>
+      </li>
+      {% endif %} 
     </ul>
   </aside>
 {% endblock %}

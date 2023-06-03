@@ -12,10 +12,27 @@ from django.shortcuts import render, redirect
 from . forms import FixturesForm
 from . models import Fixture, Tournament, Team, Match
 # Create your views here.
-class HomeView(LoginRequiredMixin, View):
-    login_url = "auth:login"
-    def get(self, request):
-        return render(request, 'scores_fixtures/index.html')
+class HomeView(ListView):
+    model = Fixture
+    context_object_name = "matches"
+    template_name = "scores_fixtures/index.html"
+    # current_date = timezone.now().date()
+    current_date = datetime.date.today()
+    print(f"current date: {current_date}")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        fixture_date = Fixture.objects.filter(match_date_time__date = datetime.datetime(2023, 6, 3))
+        
+        print(f"Fixture Date: {fixture_date}")
+        context['today_match'] = Match.objects.filter(fixture__in=fixture_date)
+        print(f"Current Date: {self.current_date}")
+        print(f"Current Date Qs: {context['today_match']}")
+        print(timezone.now())
+        context["rector_fixture"] = Fixture.objects.filter(tournament__name = "rector_cup")
+        context["dept_fixture"] = Fixture.objects.filter(tournament__name = "departmental")
+        return context
+    
 
 class FixturesView(LoginRequiredMixin, SuccessMessageMixin, TemplateView, ListView, FormView):
     login_url = "auth:login"
@@ -46,10 +63,10 @@ class FixturesView(LoginRequiredMixin, SuccessMessageMixin, TemplateView, ListVi
         template_name = self.kwargs['template_name']
         if template_name == "rector-cup":
             tournament = Tournament.objects.get(name="rector_cup")
-            print(f"tournament: {tournament}")
+            # print(f"tournament: {tournament}")
             form.fields['home_team'].queryset = Team.objects.filter(tournaments = tournament)
             form.fields['away_team'].queryset = Team.objects.filter(tournaments = tournament)
-            print("fixed")
+            # print("fixed")
         elif template_name == "departmental":
             tournament = Tournament.objects.get(name="departmental")
             form.fields['home_team'].queryset = Team.objects.filter(tournaments = tournament)
@@ -98,6 +115,9 @@ class FixturesView(LoginRequiredMixin, SuccessMessageMixin, TemplateView, ListVi
                     
                 instance.tournament = tournament
                 instance.save()
+                Match.objects.create(
+                 fixture = instance
+                )
             
                 return redirect("scores:fixtures", self.kwargs['template_name'])
             else:
