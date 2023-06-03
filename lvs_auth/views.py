@@ -1,13 +1,19 @@
-from typing import Any, Dict
+import datetime
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
-from django.shortcuts import get_object_or_404, render, redirect
+from django.forms.forms import BaseForm
+from django.http.response import HttpResponse
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
+from django.utils import timezone
 from django.views.generic import (View, ListView, FormView,
                                   TemplateView, DeleteView, UpdateView)
 from django.contrib.messages.views import SuccessMessageMixin
 
-from .forms import LoginForm, TeamForm, TeamPlayerForm, Department, Tournament
+from scores_fixtures.models import Match
+
+from .forms import (LoginForm, TeamForm, 
+                    TeamPlayerForm, Tournament, UpdateGoalScorerForm, UpdateMatchForm, UpdateScoreForm)
 from tournament.models import Team, Player
 
 
@@ -27,7 +33,7 @@ class LoginView(View):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('auth:dashboard')
+                return redirect('scores:index')
             else:
                 messages.error(request, "User not found!")
         
@@ -157,6 +163,49 @@ class UpdatePlayer(UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('auth:team_players', kwargs={'pk': self.request.POST['team_pk']} )
+    
+
+class UpdateMatch(SuccessMessageMixin, UpdateView):
+    model = Match
+    template_name = "lvs_auth/update_match.html"
+    form_class = UpdateMatchForm
+    success_message = "Match Updated"
+    success_url = reverse_lazy('scores:index')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        match_id = self.kwargs['pk']
+        context["team_name"] = Match.objects.get(id = match_id)
+        return context
+    
+    def form_valid(self, form: BaseForm):
+        if form.is_valid():
+            instance = form.save(commit=False)
+            now = datetime.datetime.now().time()
+            print(f"time now: {now}")
+            # form.save()
+            return super().form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+
+def UpdateMatchScore(request, pk, *args, **kwargs):
+    context = {}
+    context['match'] = Match.objects.get(id=pk)
+    if request.method == 'POST':
+        matchScore = UpdateScoreForm(request.POST)
+        goalScorer = UpdateGoalScorerForm(request.POST)
+        
+        if matchScore.is_valid() and goalScorer.is_valid():
+            return render(request, 'lvs_auth/update_match_score.html')
+        else:
+            messages.error(f"An error occured:")
+    else:
+        context['matchScoreForm'] = UpdateScoreForm()
+        context['goalScorerForm'] = UpdateGoalScorerForm()
+        return render(request, 'lvs_auth/update_match_score.html', context)
+ 
+    
 
 
 

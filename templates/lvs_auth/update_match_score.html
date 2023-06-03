@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}{% include 'utils/auth_head.html' %}{% endblock head %}
+{% block title %}Update Match Score{% endblock title %}
+{% block body %}
+
+    <!-- Layout wrapper -->
+    <div class="layout-wrapper layout-content-navbar">
+      <div class="layout-container">
+        <!-- Menu -->
+
+        {% block aside %}{% include 'utils/aside.html' %}{% endblock aside %}
+        <!-- / Menu -->
+
+        <!-- Layout container -->
+        <div class="layout-page">
+          <!-- Navbar -->
+
+          {% include 'utils/nav.html' %}
+
+          <!-- Content wrapper -->
+          <div class="content-wrapper">
+            <!-- Content -->
+
+            <div class="container-xxl flex-grow-1 container-p-y">
+              <div class="row">
+                <div class="col-lg-12 mb-4 order-0">
+                  <div class="card">
+                    <div class="d-flex align-items-end row">
+                      <div class="col-sm-7">
+                        <div class="card-body">
+                          <h3 class="card-title text-primary">Update Match Score</h3>
+                        </div>      
+                      </div> 
+                    </div>
+                    <div class="container">
+                        
+                        <form action="" method="post">
+                            {% csrf_token %}
+                            <hr class="my-0 mb-4" />
+                            {% include 'utils/messages.html' %}
+                          
+                            <div class="row mb-3">
+                              <!-- <span>Scores</span> -->
+                              {% if matchScoreForm.home_team_score.errors %}
+                                <div class="alert alert-danger mt-2" role="alert">
+                                  {{ matchScoreForm.home_team_score.errors }}
+                                </div>
+                              {% endif %}
+                              <label class="col-sm-2 col-form-label" for="basic-default-name">{{match.fixture.home_team.deptName}}</label>
+                              <div class="col-sm-3">
+                                  {{matchScoreForm.home_team_score}}
+                              </div>
+
+                              {% if matchScoreForm.away_team_score.errors %}
+                                <div class="alert alert-danger mt-2" role="alert">
+                                  {{ matchScoreForm.away_team_score.errors }}
+                                </div>
+                              {% endif %}
+                              <label class="col-sm-2 col-form-label" for="basic-default-name">{{match.fixture.away_team.deptName}}</label>
+                              <div class="col-sm-3">
+                                  {{matchScoreForm.away_team_score}}
+                              </div>
+                            </div>
+                                    
+                            <div class="row mb-3">
+                              <!-- <span>Scores</span> -->
+                              {% if goalScorerForm.home_scorer.errors %}
+                                <div class="alert alert-danger mt-2" role="alert">
+                                  {{ goalScorerForm.home_scorer.errors }}
+                                </div>
+                              {% endif %}
+                              <label class="col-sm-2 col-form-label" for="basic-default-name">{{match.fixture.home_team.deptName}}</label>
+                              <div class="col-sm-3">
+                                  {{goalScorerForm.home_scorer}}
+                              </div>
+
+                              {% if goalScorerForm.away_scorer.errors %}
+                                <div class="alert alert-danger mt-2" role="alert">
+                                  {{ goalScorerForm.away_scorer.errors }}
+                                </div>
+                              {% endif %}
+                              <label class="col-sm-2 col-form-label" for="basic-default-name">Goal Scorer</label>
+                              <div class="col-sm-3">
+                                  {{goalScorerForm.away_scorer}}
+                              </div>
+                            </div>
+                                    
+                            <div class="row mb-3">
+                              <!-- <span>Scores</span> -->
+                              {% if goalScorerForm.home_assist.errors %}
+                                <div class="alert alert-danger mt-2" role="alert">
+                                  {{ goalScorerForm.home_assist.errors }}
+                                </div>
+                              {% endif %}
+                              <label class="col-sm-2 col-form-label" for="basic-default-name">Goal Assist</label>
+                              <div class="col-sm-3">
+                                  {{goalScorerForm.home_assist}}
+                              </div>
+
+                              {% if goalScorerForm.away_assist.errors %}
+                                <div class="alert alert-danger mt-2" role="alert">
+                                  {{ goalScorerForm.away_assist.errors }}
+                                </div>
+                              {% endif %}
+                              <label class="col-sm-2 col-form-label" for="basic-default-name">Goal Assist</label>
+                              <div class="col-sm-3">
+                                  {{goalScorerForm.away_assist}}
+                              </div>
+                            </div>
+                                    
+                            <hr/>
+                            <div class="modal-footer">
+                              <button type="submit" class="btn btn-primary">Update</button>
+                            </div>
+                      </form> 
+                    </div>
+                  </div>
+                </div>
+                </div>
+            </div>
+            <!-- / Content -->
+
+            <!-- Footer -->
+            {% include 'utils/footer.html' %}
+
+            <!-- / Footer -->
+
+            <div class="content-backdrop fade"></div>
+          </div>
+          <!-- Content wrapper -->
+        </div>
+        <!-- / Layout page -->
+      </div>
+
+   
+    </div>
+    <!-- / Layout wrapper -->
+    {% include 'utils/scripts.html' %}
+  
+{% endblock body %}

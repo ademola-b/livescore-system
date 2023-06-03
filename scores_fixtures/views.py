@@ -22,13 +22,10 @@ class HomeView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        fixture_date = Fixture.objects.filter(match_date_time__date = datetime.datetime(2023, 6, 3))
-        
-        print(f"Fixture Date: {fixture_date}")
+        fixture_date = Fixture.objects.filter(match_date_time__date = self.current_date)
+   
         context['today_match'] = Match.objects.filter(fixture__in=fixture_date)
-        print(f"Current Date: {self.current_date}")
-        print(f"Current Date Qs: {context['today_match']}")
-        print(timezone.now())
+        # context['home_team'] = 
         context["rector_fixture"] = Fixture.objects.filter(tournament__name = "rector_cup")
         context["dept_fixture"] = Fixture.objects.filter(tournament__name = "departmental")
         return context

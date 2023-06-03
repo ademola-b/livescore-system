@@ -1,6 +1,6 @@
 from django.db import models
 
-from tournament.models import Tournament, Team
+from tournament.models import Tournament, Team, Player
 # Create your models here.
 
 match_status = [
@@ -38,10 +38,10 @@ class Match(models.Model):
 class GoalScorers(models.Model):
     match = models.ForeignKey(Match, on_delete=models.CASCADE)
     time = models.IntegerField(default=0)
-    home_scorer = models.ForeignKey(Team, related_name='home_scorer', blank=True, null=True, on_delete=models.CASCADE)
-    away_scorer = models.ForeignKey(Team, related_name='away_scorer', blank=True, null=True, on_delete=models.CASCADE)
-    home_assist = models.ForeignKey(Team, related_name='home_assist', blank=True, null=True, on_delete=models.CASCADE)
-    away_assist = models.ForeignKey(Team, related_name='away_assist', blank=True, null=True, on_delete=models.CASCADE)
+    home_scorer = models.ForeignKey(Player, related_name='home_scorer', blank=True, null=True, on_delete=models.CASCADE)
+    away_scorer = models.ForeignKey(Player, related_name='away_scorer', blank=True, null=True, on_delete=models.CASCADE)
+    home_assist = models.ForeignKey(Player, related_name='home_assist', blank=True, null=True, on_delete=models.CASCADE)
+    away_assist = models.ForeignKey(Player, related_name='away_assist', blank=True, null=True, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name_plural = "Goal Scorers"

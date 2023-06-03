@@ -71,8 +71,8 @@
       <!-- Dashboard -->
       
       {% if request.user.is_staff %}
-        <li class="menu-item {% if request.path == '/auth/dashboard/' %}active{% endif %}">
-          <a href="{% url 'auth:dashboard' %}" class="menu-link">
+        <li class="menu-item {% if "" in request.path %}active{% endif %}">
+          <a href="{% url 'scores:index' %}" class="menu-link">
             <i class="menu-icon tf-icons bx bx-home-circle"></i>
             <div data-i18n="Analytics">Dashboard</div>
           </a>

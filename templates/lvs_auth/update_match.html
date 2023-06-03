@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block head %}{% include 'utils/auth_head.html' %}{% endblock head %}
-{% block title %}Update Player{% endblock title %}
+{% block title %}Update Match{% endblock title %}
 {% block body %}
 
     <!-- Layout wrapper -->
@@ -29,42 +29,41 @@
                     <div class="d-flex align-items-end row">
                       <div class="col-sm-7">
                         <div class="card-body">
-                          <h3 class="card-title text-primary">Update {{team.deptName}}</h3>
+                          <h3 class="card-title text-primary">Update Match</h3>
                         </div>      
                       </div> 
                     </div>
                     <div class="container">
-                      {% include 'utils/messages.html' %}
-                   
-                      <form action="" method="post">
-                        {% csrf_token %}
-                   
-                          <hr class="my-0 mb-4" />
+                        
+                        <form action="" method="post">
+                            {% csrf_token %}
+                            <hr class="my-0 mb-4" />
+                            {% include 'utils/messages.html' %}
                           
                           <div class="row mb-3">
-                            {% if form.coach.errors %}
+                            {% if form.referee.errors %}
                               <div class="alert alert-danger mt-2" role="alert">
-                                {{ form.coach.errors }}
+                                {{ form.referee.errors }}
                               </div>
                             {% endif %}
-                            <label class="col-sm-2 col-form-label" for="basic-default-name">Coach</label>
+                            <label class="col-sm-2 col-form-label" for="basic-default-name">Referee Name</label>
                             <div class="col-sm-10">
-                                {{form.coach}}
+                                {{form.referee}}
                             </div>
                           </div>
                           
                           <div class="row mb-3">
-                            {% if form.tournaments.errors %}
+                            {% if form.status.errors %}
                               <div class="alert alert-danger mt-2" role="alert">
-                                {{ form.tournaments.errors }}
+                                {{ form.status.errors }}
                               </div>
                             {% endif %}
-                            <label class="col-sm-2 col-form-label" for="basic-default-name">Tournaments</label>
+                            <label class="col-sm-2 col-form-label" for="basic-default-name">Status</label>
                             <div class="col-sm-10">
-                                {{form.tournaments}}
+                                {{form.status}}
                             </div>
                           </div>
-                          
+                                    
                             <hr/>
                             <div class="modal-footer">
                               <button type="submit" class="btn btn-primary">Update</button>
@@ -93,6 +92,5 @@
     </div>
     <!-- / Layout wrapper -->
     {% include 'utils/scripts.html' %}
-   
   
 {% endblock body %}

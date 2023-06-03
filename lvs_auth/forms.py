@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
+from scores_fixtures.models import GoalScorers, Match
 
 from tournament.models import Team, Department, Player, Tournament
 
@@ -67,4 +68,85 @@ class TeamPlayerForm(forms.ModelForm):
         fields = ["name", "image", "age", "jersey_number", "position"]
     
 
+class UpdateMatchForm(forms.ModelForm):
+
+    match_status = [
+    ("not_started", "not_started"),
+    ("ON", "ON"),
+    ("HF", "HF"),
+    ("FT", "FT"),
+    ("ET", "ET"),
+    ("postponed", "postponed"),
+]
+
+    status = forms.ChoiceField(choices=match_status, widget=forms.Select(
+        attrs={
+            'class': 'form-control select form-select'
+        }
+    ))
+
+    referee = forms.CharField(widget=forms.TextInput(
+        attrs={
+            'class': 'form-control'
+        }
+    ))
     
+    
+    class Meta:
+        model = Match
+        fields = ['referee','status']
+
+
+class UpdateScoreForm(forms.ModelForm):
+    home_team_score = forms.CharField(widget=forms.NumberInput(
+        attrs={
+            'class': 'form-control'
+        }
+    ))
+
+    away_team_score = forms.CharField(widget=forms.NumberInput(
+        attrs={
+            'class': 'form-control'
+        }
+    ))
+
+    class Meta:
+        model = Match
+        fields = ['home_team_score', 'away_team_score']
+
+class UpdateGoalScorerForm(forms.ModelForm):
+
+    home_scorer = forms.ModelChoiceField(queryset=Player.objects.none(), widget=forms.Select(
+        attrs = {
+            'class': 'form-control select form-select'
+        }
+    ))
+
+    away_scorer = forms.ModelChoiceField(queryset=Player.objects.none(), widget=forms.Select(
+        attrs = {
+            'class': 'form-control select form-select'
+        }
+    ))
+
+
+    home_assist = forms.ModelChoiceField(queryset=Player.objects.none(), widget=forms.Select(
+        attrs = {
+            'class': 'form-control select form-select'
+        }
+    ))
+
+    away_assist = forms.ModelChoiceField(queryset=Player.objects.none(), widget=forms.Select(
+        attrs = {
+            'class': 'form-control select form-select'
+        }
+    ))
+
+
+    class Meta:
+        model = GoalScorers
+        fields = [
+            'home_scorer',
+            'away_scorer',
+            'home_assist',
+            'away_assist'
+        ]
