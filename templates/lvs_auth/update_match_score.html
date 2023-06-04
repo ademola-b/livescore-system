@@ -39,74 +39,62 @@
                             {% csrf_token %}
                             <hr class="my-0 mb-4" />
                             {% include 'utils/messages.html' %}
+
+                            <div class="row mb-3">
+                              <h5 class="col-sm-2">Time: {{match.time.minute}} </h5>
+                              <h4 class="col-sm-3">{{match.fixture.home_team.deptName}}</h4>
+                              <h4 class="col-sm-2">vs</h4>
+                              <h4 class="col-sm-3">{{match.fixture.away_team.deptName}}</h4>
+
+                            </div>
                           
                             <div class="row mb-3">
-                              <!-- <span>Scores</span> -->
-                              {% if matchScoreForm.home_team_score.errors %}
+                              
+                              {% if form.home_team_score.errors %}
                                 <div class="alert alert-danger mt-2" role="alert">
-                                  {{ matchScoreForm.home_team_score.errors }}
+                                  {{ form.home_team_score.errors }}
                                 </div>
                               {% endif %}
-                              <label class="col-sm-2 col-form-label" for="basic-default-name">{{match.fixture.home_team.deptName}}</label>
+                              <label class="col-sm-2 col-form-label" for="basic-default-name">Scores</label>
                               <div class="col-sm-3">
-                                  {{matchScoreForm.home_team_score}}
+                                  {{form.home_team_score}}
                               </div>
 
-                              {% if matchScoreForm.away_team_score.errors %}
+                              {% if form.away_team_score.errors %}
                                 <div class="alert alert-danger mt-2" role="alert">
-                                  {{ matchScoreForm.away_team_score.errors }}
+                                  {{ form.away_team_score.errors }}
                                 </div>
                               {% endif %}
-                              <label class="col-sm-2 col-form-label" for="basic-default-name">{{match.fixture.away_team.deptName}}</label>
+                              <label class="col-sm-2 col-form-label" for="basic-default-name"></label>
                               <div class="col-sm-3">
-                                  {{matchScoreForm.away_team_score}}
+                                  {{form.away_team_score}}
                               </div>
                             </div>
                                     
                             <div class="row mb-3">
-                              <!-- <span>Scores</span> -->
-                              {% if goalScorerForm.home_scorer.errors %}
+                              {% if goalScorerForm.scorer.errors %}
                                 <div class="alert alert-danger mt-2" role="alert">
-                                  {{ goalScorerForm.home_scorer.errors }}
-                                </div>
-                              {% endif %}
-                              <label class="col-sm-2 col-form-label" for="basic-default-name">{{match.fixture.home_team.deptName}}</label>
-                              <div class="col-sm-3">
-                                  {{goalScorerForm.home_scorer}}
-                              </div>
-
-                              {% if goalScorerForm.away_scorer.errors %}
-                                <div class="alert alert-danger mt-2" role="alert">
-                                  {{ goalScorerForm.away_scorer.errors }}
+                                  {{ goalScorerForm.scorer.errors }}
                                 </div>
                               {% endif %}
                               <label class="col-sm-2 col-form-label" for="basic-default-name">Goal Scorer</label>
                               <div class="col-sm-3">
-                                  {{goalScorerForm.away_scorer}}
+                                  {{goalScorerForm.scorer}}
                               </div>
                             </div>
                                     
                             <div class="row mb-3">
                               <!-- <span>Scores</span> -->
-                              {% if goalScorerForm.home_assist.errors %}
+                              {% if goalScorerForm.assist.errors %}
                                 <div class="alert alert-danger mt-2" role="alert">
-                                  {{ goalScorerForm.home_assist.errors }}
+                                  {{ goalScorerForm.assist.errors }}
                                 </div>
                               {% endif %}
                               <label class="col-sm-2 col-form-label" for="basic-default-name">Goal Assist</label>
                               <div class="col-sm-3">
-                                  {{goalScorerForm.home_assist}}
+                                  {{goalScorerForm.assist}}
                               </div>
 
-                              {% if goalScorerForm.away_assist.errors %}
-                                <div class="alert alert-danger mt-2" role="alert">
-                                  {{ goalScorerForm.away_assist.errors }}
-                                </div>
-                              {% endif %}
-                              <label class="col-sm-2 col-form-label" for="basic-default-name">Goal Assist</label>
-                              <div class="col-sm-3">
-                                  {{goalScorerForm.away_assist}}
-                              </div>
                             </div>
                                     
                             <hr/>

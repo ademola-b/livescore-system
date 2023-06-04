@@ -42,6 +42,6 @@ class Player(models.Model):
     is_captain = models.BooleanField()
 
     def __str__(self):
-        return self.name
+        return f"{self.name} - {self.team_id.deptName.deptName}"
     
     

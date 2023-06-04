@@ -29,6 +29,7 @@ class Match(models.Model):
     away_team_formation = models.CharField(max_length=10, default="4-4-2")
     referee = models.CharField(max_length=30)
     status = models.CharField(max_length=15, choices=match_status, default="not_started")
+    time = models.TimeField(default="00:00")
     
     class Meta:
         verbose_name_plural = "Matches"
@@ -38,15 +39,16 @@ class Match(models.Model):
 class GoalScorers(models.Model):
     match = models.ForeignKey(Match, on_delete=models.CASCADE)
     time = models.IntegerField(default=0)
-    home_scorer = models.ForeignKey(Player, related_name='home_scorer', blank=True, null=True, on_delete=models.CASCADE)
-    away_scorer = models.ForeignKey(Player, related_name='away_scorer', blank=True, null=True, on_delete=models.CASCADE)
-    home_assist = models.ForeignKey(Player, related_name='home_assist', blank=True, null=True, on_delete=models.CASCADE)
-    away_assist = models.ForeignKey(Player, related_name='away_assist', blank=True, null=True, on_delete=models.CASCADE)
+    scorer = models.ForeignKey(Player, related_name='home_scorer', blank=True, null=True, on_delete=models.CASCADE)
+    # away_scorer = models.ForeignKey(Player, related_name='away_scorer', blank=True, null=True, on_delete=models.CASCADE)
+    assist = models.ForeignKey(Player, related_name='home_assist', blank=True, null=True, on_delete=models.CASCADE)
+    # away_assist = models.ForeignKey(Player, related_name='away_assist', blank=True, null=True, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name_plural = "Goal Scorers"
     def __str__(self):
-        return self.match
+        return f"""Match: {self.match.fixture.home_team.deptName.deptName} - {self.match.fixture.away_team.deptName.deptName}
+                    """
     
 
 

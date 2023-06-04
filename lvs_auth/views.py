@@ -87,12 +87,10 @@ class UpdateTeam(SuccessMessageMixin, UpdateView):
     def get(self, request, pk, *args, **kwargs):
         team_detail = Team.objects.get(team_id= pk)
         form = self.form_class(instance = team_detail)
-        # team_tournament = Team.objects.filter(tournaments__name__in = [x for x in Tournament.objects.all()])
         team_tournament = Team.objects.filter(tournaments__id = 2)
         tourn = Tournament.objects.all()
         print(f"tournaments: {team_tournament}")
         form.fields['deptName'].required = False
-        # form.fields['tournaments'].initial = Team.objects.filter(tournaments = tourn.id)
         return render(request, self.template_name, {"form":form, "team":team_detail})
     
     def post(self, request, pk):
@@ -178,28 +176,74 @@ class UpdateMatch(SuccessMessageMixin, UpdateView):
         context["team_name"] = Match.objects.get(id = match_id)
         return context
     
-    def form_valid(self, form: BaseForm):
-        if form.is_valid():
-            instance = form.save(commit=False)
-            now = datetime.datetime.now().time()
-            print(f"time now: {now}")
-            # form.save()
-            return super().form_valid(form)
+    # def form_valid(self, request, form):
+    #     if form.is_valid():
+    #         instance = form.save(commit=False)
+    #         # print(f"time now: {now}")
+    #         form.save()
+    #         return super().form_valid(form)
+    #     else:
+    #         messages.warning(request, "An error occurred")
+    #         return self.form_invalid(form)
+
+class UpdateMatchScoreV(SuccessMessageMixin, UpdateView):
+    model = Match
+    template_name = "lvs_auth/update_match_score.html"
+    form_class = UpdateScoreForm
+    second_form_class = UpdateGoalScorerForm
+    success_message = "Match Score Updated"
+    success_url = reverse_lazy('scores:index')
+
+    def get_context_data(self, **kwargs):
+        context = super(UpdateMatchScoreV, self).get_context_data(**kwargs)
+        match_id = self.kwargs['pk']
+        context["team_name"] = Match.objects.get(id = match_id)
+        context['form'] = self.form_class()
+        context['goalScorerForm'] = self.second_form_class()
+        return context
+    
+    # def get(self, request, *args, **kwargs):
+    #     super(UpdateMatchScoreV, self).get(request, *args, **kwargs)
+    #     form = self.form_class
+    #     goalScorerForm = self.second_form_class
+    #     return self.render_to_response(self.get_context_data(object=self.object, form=form, goalScorerForm=goalScorerForm))
+
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        print(f"object: {self.object}")
+        match = Match.objects.get(id = self.kwargs['pk'])
+        form = self.form_class(request.POST, instance = match)
+        goalScorerForm = self.second_form_class(request.POST)
+
+        if form.is_valid() and goalScorerForm.is_valid():
+            formdata = form.save(commit=False)
+            formdata.save()
+            goalScorerData = goalScorerForm.save(commit=False)
+            goalScorerData.match = match
+            goalScorerData.save()
+            messages.success(request, "Match Score Updated Successfully")
+            return redirect("scores:index")
         else:
-            return self.form_invalid(form)
-
-
+            messages.warning(f"An error occurred: {form.errors.as_text, goalScorerForm.errors.as_text}")
+            return self.render_to_response(self.get_context_data(form=form, goalScorerForm=goalScorerForm))
+    
+# unused
 def UpdateMatchScore(request, pk, *args, **kwargs):
     context = {}
     context['match'] = Match.objects.get(id=pk)
     if request.method == 'POST':
-        matchScore = UpdateScoreForm(request.POST)
-        goalScorer = UpdateGoalScorerForm(request.POST)
+        matchScore = UpdateScoreForm(request.POST, pk=pk)
+        goalScorer = UpdateGoalScorerForm(request.POST, pk=pk)
         
         if matchScore.is_valid() and goalScorer.is_valid():
-            return render(request, 'lvs_auth/update_match_score.html')
+            score = matchScore.save()
+            print(f"score:{score}")
+            goalScorer.save(score)
+            return render(request, 'scores_fixtures/index.html')
+            # return redirect("scores:index")
         else:
-            messages.error(f"An error occured:")
+            messages.error(request, f"An error occurred:{goalScorer.errors.as_text, matchScore.errors.as_text}")
     else:
         context['matchScoreForm'] = UpdateScoreForm()
         context['goalScorerForm'] = UpdateGoalScorerForm()

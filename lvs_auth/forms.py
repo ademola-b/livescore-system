@@ -91,10 +91,10 @@ class UpdateMatchForm(forms.ModelForm):
         }
     ))
     
-    
     class Meta:
         model = Match
         fields = ['referee','status']
+
 
 
 class UpdateScoreForm(forms.ModelForm):
@@ -114,39 +114,83 @@ class UpdateScoreForm(forms.ModelForm):
         model = Match
         fields = ['home_team_score', 'away_team_score']
 
+    def __init__(self, *args, **kwargs):
+        pk = kwargs.pop('pk', None)
+        super(UpdateScoreForm, self).__init__(*args, **kwargs)
+        print(f"match: {pk}")
+        match = Match.objects.get(pk = 1)
+
+        print(f"kwargs-scores: {kwargs}")
+        print(f"match: {match.fixture.home_team}")
+        print(f"match: {match}")
+        self.fields['home_team_score'].initial = match.home_team_score
+        self.fields['away_team_score'].initial = match.away_team_score
+        
+    # def save(self, commit=True):
+    #     instance = super(UpdateScoreForm, self).save(commit=False)
+
+    #     if not self.instance.pk:
+    #         if commit:
+    #             if int(instance.home_team_score) < 0:
+    #                 return "Invalid Score"
+    #             if int(instance.away_team_score) < 0:
+    #                 return "Invalid Score"
+    #             instance.save()
+    #             print(f"instance: {instance}")
+        
+    #     return instance
+
 class UpdateGoalScorerForm(forms.ModelForm):
 
-    home_scorer = forms.ModelChoiceField(queryset=Player.objects.none(), widget=forms.Select(
+    scorer = forms.ModelChoiceField(queryset=Player.objects.none(), required=False, empty_label="Select player", widget=forms.Select(
         attrs = {
             'class': 'form-control select form-select'
         }
     ))
 
-    away_scorer = forms.ModelChoiceField(queryset=Player.objects.none(), widget=forms.Select(
+    assist = forms.ModelChoiceField(queryset=Player.objects.none(), required=False, empty_label="Select player", widget=forms.Select(
         attrs = {
             'class': 'form-control select form-select'
         }
     ))
 
-
-    home_assist = forms.ModelChoiceField(queryset=Player.objects.none(), widget=forms.Select(
-        attrs = {
-            'class': 'form-control select form-select'
-        }
-    ))
-
-    away_assist = forms.ModelChoiceField(queryset=Player.objects.none(), widget=forms.Select(
-        attrs = {
-            'class': 'form-control select form-select'
-        }
-    ))
-
-
+    
     class Meta:
         model = GoalScorers
         fields = [
-            'home_scorer',
-            'away_scorer',
-            'home_assist',
-            'away_assist'
+            'scorer',
+            'assist',
+      
         ]
+
+    def __init__(self, *args, **kwargs):
+        pk = kwargs.pop('pk', None)
+        super(UpdateGoalScorerForm, self).__init__(*args, **kwargs)
+        print(f"match: {pk}")
+        match = Match.objects.get(pk = 1)
+        print(f"kwargs-goalscorer: {kwargs}")
+
+        homePlayers = Player.objects.filter(team_id=match.fixture.home_team)
+        awayPlayers = Player.objects.filter(team_id=match.fixture.away_team)
+
+        # joinPlayers = homePlayers + awayPlayers
+        print(f"join: {awayPlayers | homePlayers }")
+  
+        self.fields['scorer'].queryset = homePlayers | awayPlayers
+        # self.fields['away_scorer'].queryset = Player.objects.filter(team_id=match.fixture.away_team)
+        self.fields['assist'].queryset = homePlayers | awayPlayers
+        # self.fields['away_assist'].queryset = Player.objects.filter(team_id=match.fixture.away_team)
+
+
+    # def save(self, score, commit=True):
+    #     instance = super(UpdateGoalScorerForm, self).save(commit=False)
+    #     print(f"instance: {instance}")
+    #     if not self.instance.pk:
+    #         if commit:
+    #             instance.match = score
+    #             instance.home_team_score = score
+    #             instance.away_team_score = score
+    #             instance.save()
+        
+    #     return instance
+
