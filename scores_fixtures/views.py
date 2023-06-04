@@ -12,6 +12,19 @@ from django.shortcuts import render, redirect
 from . forms import FixturesForm
 from . models import Fixture, Tournament, Team, Match
 # Create your views here.
+
+def HomeViewL(request):
+    context = {}
+    current_date = datetime.date.today()
+    fixture_date = Fixture.objects.filter(match_date_time__date = current_date)
+    context['today_match'] = Match.objects.filter(fixture__in=fixture_date)
+    context["rector_fixture"] = Fixture.objects.filter(tournament__name = "rector_cup")
+    context["dept_fixture"] = Fixture.objects.filter(tournament__name = "departmental")
+    if request.htmx:
+        return render(request, "utils/match_card.html", context)
+    else:
+        return render(request, "scores_fixtures/index.html", context=context)
+
 class HomeView(ListView):
     model = Fixture
     context_object_name = "matches"
