@@ -23,8 +23,8 @@ class Fixture(models.Model):
 
 class Match(models.Model):
     fixture = models.ForeignKey(Fixture, on_delete=models.CASCADE)
-    home_team_score = models.CharField(max_length=10, default=0, blank=True, null=True,)
-    away_team_score = models.CharField(max_length=10, default=0, blank=True, null=True,)
+    home_team_score = models.IntegerField(default=0, blank=True, null=True,)
+    away_team_score = models.IntegerField(default=0, blank=True, null=True,)
     home_team_formation = models.CharField(max_length=10, default="4-4-2")
     away_team_formation = models.CharField(max_length=10, default="4-4-2")
     referee = models.CharField(max_length=30)
@@ -38,6 +38,7 @@ class Match(models.Model):
 
 class GoalScorers(models.Model):
     match = models.ForeignKey(Match, on_delete=models.CASCADE)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
     time = models.IntegerField(default=0)
     scorer = models.ForeignKey(Player, related_name='home_scorer', blank=True, null=True, on_delete=models.CASCADE)
     # away_scorer = models.ForeignKey(Player, related_name='away_scorer', blank=True, null=True, on_delete=models.CASCADE)

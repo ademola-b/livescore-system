@@ -98,21 +98,22 @@ class UpdateMatchForm(forms.ModelForm):
 
 
 class UpdateScoreForm(forms.ModelForm):
-    home_team_score = forms.CharField(widget=forms.NumberInput(
-        attrs={
-            'class': 'form-control'
-        }
-    ))
+    # home_team_score = forms.CharField(widget=forms.NumberInput(
+    #     attrs={
+    #         'class': 'form-control'
+    #     }
+    # ))
 
-    away_team_score = forms.CharField(widget=forms.NumberInput(
-        attrs={
-            'class': 'form-control'
-        }
-    ))
+    # away_team_score = forms.CharField(widget=forms.NumberInput(
+    #     attrs={
+    #         'class': 'form-control'
+    #     }
+    # ))
 
     class Meta:
         model = Match
-        fields = ['home_team_score', 'away_team_score']
+        exclude = "__all__"
+        # fields = ['home_team_score', 'away_team_score']
 
     def __init__(self, *args, **kwargs):
         pk = kwargs.pop('pk', None)
@@ -120,27 +121,41 @@ class UpdateScoreForm(forms.ModelForm):
         print(f"match: {pk}")
         match = Match.objects.get(pk = 1)
 
-        print(f"kwargs-scores: {kwargs}")
-        print(f"match: {match.fixture.home_team}")
-        print(f"match: {match}")
-        self.fields['home_team_score'].initial = match.home_team_score
-        self.fields['away_team_score'].initial = match.away_team_score
+        # self.fields['home_team_score'].initial = match.home_team_score
+        # self.fields['away_team_score'].initial = match.away_team_score
         
+    # def clean_home_team_score(self):
+    #     if int(self.cleaned_data['home_team_score']) < 0:
+    #         raise forms.ValidationError("Invalid Score")
+    
+    # def clean_away_team_score(self):
+    #     if int(self.cleaned_data['away_team_score']) < 0:
+    #         raise forms.ValidationError("Invalid Score")
+    
     # def save(self, commit=True):
     #     instance = super(UpdateScoreForm, self).save(commit=False)
 
-    #     if not self.instance.pk:
-    #         if commit:
-    #             if int(instance.home_team_score) < 0:
-    #                 return "Invalid Score"
-    #             if int(instance.away_team_score) < 0:
-    #                 return "Invalid Score"
-    #             instance.save()
-    #             print(f"instance: {instance}")
+    #     if commit:
+    #         home_team_score = self.cleaned_data['home_team_score']
+    #         away_team_score = self.cleaned_data['away_team_score']
+
+    #         if int(instance.home_team_score) < home_team_score:
+    #             raise forms.ValidationError("Invalid Score")
+            
+    #         if int(instance.away_team_score) < away_team_score:
+    #             return "Invalid Score"
+            
+    #         instance.save()
+    #         print(f"instance: {instance}")
         
-    #     return instance
 
 class UpdateGoalScorerForm(forms.ModelForm):
+
+    team = forms.ModelChoiceField(queryset=Team.objects.none(), required=False, empty_label="Select Team", widget=forms.Select(
+        attrs = {
+            'class': 'form-control select form-select'
+        }
+    ))
 
     scorer = forms.ModelChoiceField(queryset=Player.objects.none(), required=False, empty_label="Select player", widget=forms.Select(
         attrs = {
@@ -158,6 +173,7 @@ class UpdateGoalScorerForm(forms.ModelForm):
     class Meta:
         model = GoalScorers
         fields = [
+            'team',
             'scorer',
             'assist',
       
@@ -166,9 +182,10 @@ class UpdateGoalScorerForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         pk = kwargs.pop('pk', None)
         super(UpdateGoalScorerForm, self).__init__(*args, **kwargs)
-        print(f"match: {pk}")
         match = Match.objects.get(pk = 1)
-        print(f"kwargs-goalscorer: {kwargs}")
+
+        homeTeam = Team.objects.filter(team_id=match.fixture.home_team.team_id)
+        awayTeam = Team.objects.filter(team_id=match.fixture.away_team.team_id)
 
         homePlayers = Player.objects.filter(team_id=match.fixture.home_team)
         awayPlayers = Player.objects.filter(team_id=match.fixture.away_team)
@@ -176,21 +193,19 @@ class UpdateGoalScorerForm(forms.ModelForm):
         # joinPlayers = homePlayers + awayPlayers
         print(f"join: {awayPlayers | homePlayers }")
   
+        self.fields['team'].queryset = homeTeam | awayTeam
         self.fields['scorer'].queryset = homePlayers | awayPlayers
-        # self.fields['away_scorer'].queryset = Player.objects.filter(team_id=match.fixture.away_team)
         self.fields['assist'].queryset = homePlayers | awayPlayers
-        # self.fields['away_assist'].queryset = Player.objects.filter(team_id=match.fixture.away_team)
-
 
     # def save(self, score, commit=True):
     #     instance = super(UpdateGoalScorerForm, self).save(commit=False)
     #     print(f"instance: {instance}")
-    #     if not self.instance.pk:
-    #         if commit:
-    #             instance.match = score
-    #             instance.home_team_score = score
-    #             instance.away_team_score = score
-    #             instance.save()
+    #     # if not self.instance.pk:
+    #     if commit:
+    #         instance.match = score
+    #         instance.home_team_score = score
+    #         instance.away_team_score = score
+    #         instance.save()
         
-    #     return instance
+        # return instance
 

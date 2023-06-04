@@ -40,24 +40,26 @@
                             <hr class="my-0 mb-4" />
                             {% include 'utils/messages.html' %}
 
+
                             <div class="row mb-3">
                               <h5 class="col-sm-2">Time: {{match.time.minute}} </h5>
                               <h4 class="col-sm-3">{{match.fixture.home_team.deptName}}</h4>
-                              <h4 class="col-sm-2">vs</h4>
+                              <div class="col-sm-2">
+                                <div class="bg-black py-2 px-4 mb-2 text-white d-inline-block rounded"><span class="h3">{{match.home_team_score}}:{{match.away_team_score}}</span></div>
+                              </div>
                               <h4 class="col-sm-3">{{match.fixture.away_team.deptName}}</h4>
-
                             </div>
                           
                             <div class="row mb-3">
-                              
-                              {% if form.home_team_score.errors %}
+                              {% if form.home_team_score.errors.as_text %}
                                 <div class="alert alert-danger mt-2" role="alert">
                                   {{ form.home_team_score.errors }}
                                 </div>
                               {% endif %}
-                              <label class="col-sm-2 col-form-label" for="basic-default-name">Scores</label>
+                              <label class="col-sm-2 col-form-label" for="basic-default-name">Team</label>
                               <div class="col-sm-3">
-                                  {{form.home_team_score}}
+                                  {{goalScorerForm.team}}
+                                  <!-- {{form.home_team_score}} -->
                               </div>
 
                               {% if form.away_team_score.errors %}
@@ -67,7 +69,7 @@
                               {% endif %}
                               <label class="col-sm-2 col-form-label" for="basic-default-name"></label>
                               <div class="col-sm-3">
-                                  {{form.away_team_score}}
+                                  <!-- {{form.away_team_score}} -->
                               </div>
                             </div>
                                     

@@ -58,7 +58,7 @@
                                       <div class="d-inline-block">
                                         <p class="mb-2"><small class="text-uppercase text-black font-weight-bold">{{today.fixture.tournament}}</small></p>
                                         <div class="bg-black py-2 px-4 mb-2 text-white d-inline-block rounded"><span class="h3">{{today.home_team_score}}:{{today.away_team_score}}</span></div>
-                                        <p class="mb-0"><small class="text-uppercase text-black font-weight-bold">{% if today.status == "not_started" %}{{today.fixture.match_date_time.time}}{% endif %}</small></p>
+                                        <p class="mb-0"><span class="text-uppercase text-black font-weight-bold">{% if today.status == "not_started" %}{{today.fixture.match_date_time.time}}{% else %}{{today.time.minute}}{% endif %}</span></p>
                                       </div>
                                     </div>
                         

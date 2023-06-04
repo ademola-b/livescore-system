@@ -18,7 +18,7 @@ class HomeView(ListView):
     template_name = "scores_fixtures/index.html"
     # current_date = timezone.now().date()
     current_date = datetime.date.today()
-    print(f"current date: {current_date}")
+    # print(f"current date: {current_date}")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
