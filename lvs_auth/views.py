@@ -12,8 +12,9 @@ from django.contrib.messages.views import SuccessMessageMixin
 
 from scores_fixtures.models import Match
 
-from .forms import (LoginForm, TeamForm, 
-                    TeamPlayerForm, Tournament, UpdateGoalScorerForm, UpdateMatchForm, UpdateScoreForm)
+from .forms import (LoginForm, TeamForm,TeamPlayerForm, TeamUpdateForm, 
+                    Tournament, UpdateGoalScorerForm, 
+                    UpdateMatchForm, UpdateScoreForm)
 from tournament.models import Team, Player
 
 
@@ -81,7 +82,7 @@ class DeleteTeam(SuccessMessageMixin, DeleteView):
 class UpdateTeam(SuccessMessageMixin, UpdateView):
     model = Team
     template_name = "lvs_auth/update_team.html"
-    form_class = TeamForm
+    form_class = TeamUpdateForm
     success_message = "Team detail updated"
 
     def get(self, request, pk, *args, **kwargs):
@@ -90,7 +91,7 @@ class UpdateTeam(SuccessMessageMixin, UpdateView):
         team_tournament = Team.objects.filter(tournaments__id = 2)
         tourn = Tournament.objects.all()
         print(f"tournaments: {team_tournament}")
-        form.fields['deptName'].required = False
+        # form.fields['deptName'].required = False
         return render(request, self.template_name, {"form":form, "team":team_detail})
     
     def post(self, request, pk):
@@ -98,10 +99,14 @@ class UpdateTeam(SuccessMessageMixin, UpdateView):
         form = self.form_class(request.POST, instance=team_detail)
         if form.is_valid():
             instance = form.save(commit=False)
-            instance.deptName = team_detail.deptName
+            # instance.deptName = team_detail.deptName
             instance.save()
+            form.save()
             
             return self.form_valid(form)
+        else:
+            messages.warning(request, f"An error occurred: {form.errors.as_text}")
+        return redirect("auth:team")
 
     def get_success_url(self):
         return reverse_lazy('auth:team')

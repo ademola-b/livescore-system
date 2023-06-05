@@ -10,7 +10,7 @@ class LoginForm(AuthenticationForm):
 
 class TeamForm(forms.ModelForm):
 
-    deptName = forms.ModelChoiceField(queryset=Department.objects.exclude(deptName__in=[x.deptName for x in Team.objects.all()]), empty_label="Select Department", required=True, widget=forms.Select(
+    deptName = forms.ModelChoiceField(queryset=Department.objects.exclude(deptName__in=[x.deptName for x in Team.objects.all()]), empty_label="Select Department", required=False, widget=forms.Select(
         attrs={
             'class':'form-control select form-select',
         }
@@ -29,6 +29,22 @@ class TeamForm(forms.ModelForm):
     class Meta:
         model = Team
         fields = ["deptName", "coach", "tournaments"]
+
+class TeamUpdateForm(forms.ModelForm):
+    
+    coach = forms.CharField(required = True, widget=forms.TextInput(
+        attrs={
+            'id': 'basic-default-name',
+            'placeholder': 'Enter coach name',
+            'class':'form-control',
+        }
+    )) 
+
+    tournaments = forms.ModelMultipleChoiceField(queryset = Tournament.objects.all(), required = False, widget=forms.CheckboxSelectMultiple()) 
+
+    class Meta:
+        model = Team
+        fields = ["coach", "tournaments"]
 
 class TeamPlayerForm(forms.ModelForm):
 

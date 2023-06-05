@@ -71,7 +71,7 @@
       <!-- Dashboard -->
       
       {% if request.user.is_staff %}
-        <li class="menu-item {% if "" in request.path %}active{% endif %}">
+        <li class="menu-item {% if request.path == "/" %}active{% endif %}">
           <a href="{% url 'scores:index' %}" class="menu-link">
             <i class="menu-icon tf-icons bx bx-home-circle"></i>
             <div data-i18n="Analytics">Dashboard</div>
@@ -80,7 +80,7 @@
       
         <li class="menu-header small text-uppercase"><span class="menu-header-text">Admin Fixtures</span></li>
         <!-- Extended components -->
-        <li class="menu-item {% if 'tournament' in request.path %}active{% endif %}">
+        {% comment %} <li class="menu-item {% if 'tournament' in request.path %}active{% endif %}">
           <a href="javascript:void(0)" class="menu-link menu-toggle">
             <i class="menu-icon tf-icons bx bxs-search-alt-2"></i>
             <div data-i18n="Extended UI">Manage Tournaments</div>
@@ -97,7 +97,7 @@
               </a>
             </li>
           </ul>
-        </li>
+        </li> {% endcomment %}
 
         <li class="menu-item {% if 'fixtures' in request.path  or request.path == '' %}active{% endif %}">
           <a href="javascript:void(0)" class="menu-link menu-toggle">
@@ -136,14 +136,14 @@
         <span class="menu-header-text">Matches</span>
       </li>
 
-      <li class="menu-item {% if request.path == "" %}active{% endif %}">
-        <a href="#" class="menu-link">
+      <li class="menu-item {% if request.path == "/matches/rector-cup/" %}active{% endif %}">
+        <a href="{% url 'scores:matches' 'rector-cup' %}" class="menu-link">
           <i class="menu-icon tf-icons bx bx-home-circle"></i>
           <div data-i18n="Analytics">Rector's Cup</div>
         </a>
       </li>
-      <li class="menu-item {% if request.path == "" %}active{% endif %}">
-        <a href="index.html" class="menu-link">
+      <li class="menu-item {% if request.path == "/matches/departmental/" %}active{% endif %}">
+        <a href="{% url 'scores:matches' 'departmental' %}" class="menu-link">
           <i class="menu-icon tf-icons bx bx-home-circle"></i>
           <div data-i18n="Analytics">Departmental</div>
         </a>

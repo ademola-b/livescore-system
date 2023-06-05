@@ -1,5 +1,7 @@
 from django.urls import path
-from .views import HomeView, HomeViewL, FixturesView, DeleteFixtureView, UpdateFixtureView
+from .views import (HomeViewL, FixturesView, 
+                    DeleteFixtureView, UpdateFixtureView,
+                    MatchesView)
 
 app_name = 'scores'
 urlpatterns = [
@@ -8,5 +10,5 @@ urlpatterns = [
     path('fixtures/<str:template_name>/', FixturesView.as_view(), name='fixtures'),
     path('fixtures/<str:template_name>/update/<int:pk>/',UpdateFixtureView.as_view(), name='update_fixture'),
     path('fixtures/<str:template_name>/delete/<int:pk>/', DeleteFixtureView.as_view(), name='delete_fixture'),
-    path('matches/<str:template_name>/', FixturesView.as_view(), name='matches'),
+    path('matches/<str:template_name>/', MatchesView.as_view(), name='matches'),
 ]

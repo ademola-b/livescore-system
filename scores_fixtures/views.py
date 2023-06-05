@@ -17,9 +17,15 @@ def HomeViewL(request):
     context = {}
     current_date = datetime.date.today()
     fixture_date = Fixture.objects.filter(match_date_time__date = current_date)
+    print(f"path: {request.path}")
     context['today_match'] = Match.objects.filter(fixture__in=fixture_date)
+    context['next_match'] = Match.objects.filter(fixture__match_date_time__date__gt=current_date).first()
+   
     context["rector_fixture"] = Fixture.objects.filter(tournament__name = "rector_cup")
     context["dept_fixture"] = Fixture.objects.filter(tournament__name = "departmental")
+    context['ended'] = Match.objects.filter(status__in = ['postponed', 'FT'])
+
+
     if request.htmx:
         return render(request, "utils/match_card.html", context)
     else:
@@ -146,13 +152,16 @@ class FixturesView(LoginRequiredMixin, SuccessMessageMixin, TemplateView, ListVi
                     messages.warning(request, "Both teams should be different")
                     return redirect("scores:fixtures", self.kwargs['template_name'])
                 
-                # compare date supplied
+                 # compare supplied date
                 if instance.match_date_time.__lt__(timezone.now()):
                     messages.warning(request, "Older dates can't be supplied")
                     return redirect("scores:fixtures", self.kwargs['template_name'])
                     
                 instance.tournament = tournament
                 instance.save()
+                Match.objects.create(
+                 fixture = instance
+                )
             
                 return redirect("scores:fixtures", self.kwargs['template_name'])
             else:
@@ -262,9 +271,47 @@ class DeleteFixtureView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     def get_success_url(self):
         return reverse_lazy('scores:fixtures', kwargs={'template_name': self.request.POST['template_name']})
 
-class MatchesView(LoginRequiredMixin, View):
-    login_url = "auth:login"
+class MatchesView(View):
     model = Match
+    context_object_name = "matches"
+    template_name = "scores_fixtures/rector_matches.html"
+    object_list = Match.objects.all()
+
+    def get_template_names(self):
+        template_name = self.kwargs.get('template_name')
+        if template_name == 'rector-cup':
+            return ["scores_fixtures/rector_matches.html"]
+        elif template_name == 'departmental':
+            return ["scores_fixtures/departmental_matches.html"]
+        else:
+            return ["utils/404.html"]
+
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+
+    #     template_name = self.kwargs['template_name']
+
+    #     # add to context based on the template_name
+    #     if template_name == "rector-cup":
+    #         context["rector_matches"] = Match.objects.filter(fixture__tournament__name = "rector_cup", status__in = ['postponed', 'FT'])            
+    #     elif template_name == "departmental":
+    #         context["dept_matches"] = Match.objects.filter(fixture__tournament__name = "departmental", status__in = ['postponed', 'FT'])
+ 
+    #     context['template_name'] = template_name
+    #     return context
+    
+    def get(self, request, *args, **kwargs):
+        # context = self.get_context_data(**kwargs) 
+        context = {}
+        template_name = self.kwargs['template_name']
+        print(request.path)
+        # add to context based on the template_name
+        if template_name == "rector-cup":
+            context["rector_matches"] = Match.objects.filter(fixture__tournament__name = "rector_cup", status__in = ['postponed', 'FT'])            
+        elif template_name == "departmental":
+            context["dept_matches"] = Match.objects.filter(fixture__tournament__name = "departmental", status__in = ['postponed', 'FT'])           
+        return render(request, self.get_template_names(), context)
+        # return self.render_to_response(context)
 
 
 
