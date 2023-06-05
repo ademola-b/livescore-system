@@ -93,7 +93,7 @@ class UpdateMatchForm(forms.ModelForm):
     ("FT", "FT"),
     ("ET", "ET"),
     ("postponed", "postponed"),
-]
+    ]
 
     status = forms.ChoiceField(choices=match_status, widget=forms.Select(
         attrs={
@@ -110,7 +110,6 @@ class UpdateMatchForm(forms.ModelForm):
     class Meta:
         model = Match
         fields = ['referee','status']
-
 
 
 class UpdateScoreForm(forms.ModelForm):
@@ -164,6 +163,25 @@ class UpdateScoreForm(forms.ModelForm):
     #         instance.save()
     #         print(f"instance: {instance}")
         
+class UpdateMatchStatusForm(forms.ModelForm):
+    match_status = [
+    ("not_started", "not_started"),
+    ("ON", "ON"),
+    ("HF", "HF"),
+    ("FT", "FT"),
+    ("ET", "ET"),
+    ("postponed", "postponed"),
+    ]
+
+    status = forms.ChoiceField(choices=match_status, required=False, widget=forms.Select(
+        attrs={
+            'class': 'form-control select form-select'
+        }
+    ))
+
+    class Meta:
+        model = Match
+        fields = ["status"]
 
 class UpdateGoalScorerForm(forms.ModelForm):
 
@@ -192,36 +210,6 @@ class UpdateGoalScorerForm(forms.ModelForm):
             'team',
             'scorer',
             'assist',
-      
         ]
-
-    def __init__(self, *args, **kwargs):
-        pk = kwargs.pop('pk', None)
-        super(UpdateGoalScorerForm, self).__init__(*args, **kwargs)
-        match = Match.objects.get(pk = 1)
-
-        homeTeam = Team.objects.filter(team_id=match.fixture.home_team.team_id)
-        awayTeam = Team.objects.filter(team_id=match.fixture.away_team.team_id)
-
-        homePlayers = Player.objects.filter(team_id=match.fixture.home_team)
-        awayPlayers = Player.objects.filter(team_id=match.fixture.away_team)
-
-        # joinPlayers = homePlayers + awayPlayers
-        print(f"join: {awayPlayers | homePlayers }")
-  
-        self.fields['team'].queryset = homeTeam | awayTeam
-        self.fields['scorer'].queryset = homePlayers | awayPlayers
-        self.fields['assist'].queryset = homePlayers | awayPlayers
-
-    # def save(self, score, commit=True):
-    #     instance = super(UpdateGoalScorerForm, self).save(commit=False)
-    #     print(f"instance: {instance}")
-    #     # if not self.instance.pk:
-    #     if commit:
-    #         instance.match = score
-    #         instance.home_team_score = score
-    #         instance.away_team_score = score
-    #         instance.save()
         
-        # return instance
 

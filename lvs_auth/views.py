@@ -1,4 +1,5 @@
 import datetime
+from typing import Any, Dict
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.forms.forms import BaseForm
@@ -14,7 +15,7 @@ from scores_fixtures.models import Match
 
 from .forms import (LoginForm, TeamForm,TeamPlayerForm, TeamUpdateForm, 
                     Tournament, UpdateGoalScorerForm, 
-                    UpdateMatchForm, UpdateScoreForm)
+                    UpdateMatchForm, UpdateMatchStatusForm, UpdateScoreForm)
 from tournament.models import Team, Player
 
 
@@ -195,90 +196,85 @@ class UpdateMatchScoreV(SuccessMessageMixin, UpdateView):
     model = Match
     template_name = "lvs_auth/update_match_score.html"
     form_class = UpdateGoalScorerForm
-    success_message = "Match Score Updated"
-    success_url = reverse_lazy('scores:index')
+    second_form_class = UpdateMatchStatusForm
 
-    def get_context_data(self, **kwargs):
-        context = super(UpdateMatchScoreV, self).get_context_data(**kwargs)
+    def get_context_data(self, **kwargs: Any):
+        context = super().get_context_data(**kwargs)
+
         match_id = self.kwargs['pk']
-        context["team_name"] = Match.objects.get(id = match_id)
-        # context['form'] = self.form_class()
-        context['goalScorerForm'] = self.form_class()
+        match = Match.objects.get(pk = match_id)
+        context['matchStatusForm'] = self.second_form_class(instance=match)
+        
+        # instantiate goalscorerform
+        goalScorerForm = self.form_class()
+
+        # query teams and players to be filled in select box
+        homeTeam = Team.objects.filter(team_id=match.fixture.home_team.team_id)
+        awayTeam = Team.objects.filter(team_id=match.fixture.away_team.team_id)
+
+        homePlayers = Player.objects.filter(team_id=match.fixture.home_team)
+        awayPlayers = Player.objects.filter(team_id=match.fixture.away_team)
+
+        goalScorerForm.fields['team'].queryset = homeTeam | awayTeam
+        goalScorerForm.fields['scorer'].queryset = homePlayers | awayPlayers
+        goalScorerForm.fields['assist'].queryset = homePlayers | awayPlayers
+
+        context['goalScorerForm'] = goalScorerForm
+
         return context
     
-    # def get(self, request, *args, **kwargs):
-    #     super(UpdateMatchScoreV, self).get(request, *args, **kwargs)
-    #     form = self.form_class
-    #     goalScorerForm = self.form_class
-    #     return self.render_to_response(self.get_context_data(object=self.object, form=form, goalScorerForm=goalScorerForm))
-
-
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-        print(f"object: {self.object}")
-        match = Match.objects.get(id = self.kwargs['pk'])
-        goalScorerForm = self.form_class(request.POST)
+        match = Match.objects.get(pk = self.kwargs['pk'])
 
-        if goalScorerForm.is_valid():
+        goalScorerForm = self.form_class(request.POST)
+        matchStatusForm = self.second_form_class(request.POST, instance=match)
+
+        homeTeam = Team.objects.filter(team_id=match.fixture.home_team.team_id)
+        awayTeam = Team.objects.filter(team_id=match.fixture.away_team.team_id)
+
+        homePlayers = Player.objects.filter(team_id=match.fixture.home_team)
+        awayPlayers = Player.objects.filter(team_id=match.fixture.away_team)
+
+        goalScorerForm.fields['team'].queryset = homeTeam | awayTeam
+        goalScorerForm.fields['scorer'].queryset = homePlayers | awayPlayers
+        goalScorerForm.fields['assist'].queryset = homePlayers | awayPlayers
+
+        if goalScorerForm.is_valid() and matchStatusForm.is_valid():
+            matchStatusFormData = matchStatusForm.save(commit=False)
+            matchStatusFormData.save()
+
             goalScorerData = goalScorerForm.save(commit=False)
             goalScorerData.team = goalScorerForm.cleaned_data['team']
 
-            getTeam = Team.objects.get(team_id = goalScorerData.team.team_id)
-            getPlayer = Player.objects.get(team_id=getTeam)
-            print(f"player_name: {getPlayer}")
+            if hasattr(self, 'team'):
+                getTeam = Team.objects.get(team_id = goalScorerData.team.team_id)
 
-            #increment team's score
-            if getTeam == match.fixture.home_team:
-                match.home_team_score += 1
-            elif getTeam == match.fixture.away_team:
-                match.away_team_score += 1
+                getPlayer = Player.objects.get(team_id=getTeam)
+                print(f"player_name: {getPlayer}")
 
-            #increment player's goals/assist number
-            if getPlayer == goalScorerData.scorer:
-                print("yes")
-                getPlayer.goals += 1
-            
-            if getPlayer == goalScorerData.assist:
-                getPlayer.assists += 1
+                #increment team's score
+                if getTeam == match.fixture.home_team:
+                    match.home_team_score += 1
+                elif getTeam == match.fixture.away_team:
+                    match.away_team_score += 1
 
-            goalScorerData.match = match
-            getPlayer.save()
+                #increment player's goals/assist number
+                if getPlayer == goalScorerData.scorer:
+                    print("yes")
+                    getPlayer.goals += 1
+                
+                if getPlayer == goalScorerData.assist:
+                    getPlayer.assists += 1
+
+                getPlayer.save()
+                goalScorerData.match = match
+                goalScorerData.save()
+
             match.save()
-            goalScorerData.save()
-            messages.success(request, "Match Score Updated Successfully")
+            messages.success(request, "Scores Updated Successfully")
             return redirect("scores:index")
         else:
-            messages.warning(request, f"An error occurred: {goalScorerForm.errors.as_text}")
+            messages.warning(request, f"An error occurred: {goalScorerForm.errors.as_text, matchStatusForm.errors.as_text}")
             # return self.render_to_response(self.get_context_data(form=form, goalScorerForm=goalScorerForm))
-            return self.render_to_response(self.get_context_data(goalScorerForm=goalScorerForm))
-    
-# unused
-def UpdateMatchScore(request, pk, *args, **kwargs):
-    context = {}
-    context['match'] = Match.objects.get(id=pk)
-    if request.method == 'POST':
-        matchScore = UpdateScoreForm(request.POST, pk=pk)
-        goalScorer = UpdateGoalScorerForm(request.POST, pk=pk)
-        
-        if matchScore.is_valid() and goalScorer.is_valid():
-            score = matchScore.save()
-            print(f"score:{score}")
-            goalScorer.save(score)
-            return render(request, 'scores_fixtures/index.html')
-            # return redirect("scores:index")
-        else:
-            messages.error(request, f"An error occurred:{goalScorer.errors.as_text, matchScore.errors.as_text}")
-    else:
-        context['matchScoreForm'] = UpdateScoreForm()
-        context['goalScorerForm'] = UpdateGoalScorerForm()
-        return render(request, 'lvs_auth/update_match_score.html', context)
- 
-    
-
-
-
-    
-
-
-
-
+            return self.render_to_response(self.get_context_data(matchStatusForm=matchStatusForm, goalScorerForm=goalScorerForm))

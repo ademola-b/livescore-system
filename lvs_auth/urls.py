@@ -2,7 +2,7 @@ from django.urls import path
 from . views import (LoginView, DashboardView,TeamsView, 
                      TeamPlayers, DeleteTeam, UpdateMatchScoreV, UpdateTeam, 
                       DeletePlayer, UpdatePlayer, 
-                      UpdateMatch, UpdateMatchScore)
+                      UpdateMatch)
 
 
 app_name = 'auth'
@@ -18,6 +18,6 @@ urlpatterns = [
     path('players/<int:pk>/update/', UpdatePlayer.as_view(), name='update_player'),
     path('players/<int:pk>/delete/', DeletePlayer.as_view(), name='delete_player'),
 
-    path('match/<int:pk>/update/', UpdateMatch.as_view(), name="update_match"),
+    path('match/<int:match_id>/update/', UpdateMatch.as_view(), name="update_match"),
     path('score/<int:pk>/update/', UpdateMatchScoreV.as_view(), name="update_match_score")
 ]

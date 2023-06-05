@@ -42,7 +42,7 @@
 
 
                             <div class="row mb-3">
-                              <h5 class="col-sm-2">Time: {{match.time.minute}} </h5>
+                              <h5 class="col-sm-2">Status {{matchStatusForm.status}} </h5>
                               <h4 class="col-sm-3">{{match.fixture.home_team.deptName}}</h4>
                               <div class="col-sm-2">
                                 <div class="bg-black py-2 px-4 mb-2 text-white d-inline-block rounded"><span class="h3">{{match.home_team_score}}:{{match.away_team_score}}</span></div>
@@ -51,7 +51,7 @@
                             </div>
                           
                             <div class="row mb-3">
-                              {% if form.home_team_score.errors.as_text %}
+                              {% if goalScorerForm.team_score.errors.as_text %}
                                 <div class="alert alert-danger mt-2" role="alert">
                                   {{ form.home_team_score.errors }}
                                 </div>
