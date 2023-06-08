@@ -38,7 +38,7 @@
                       {% include 'utils/messages.html' %}
                       <div class="row mb-4 justify-content-end">
                         <div class="col-md-4 ml-auto">
-                          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalSamp">Add Fixture</button>
+                          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalSamp"><i class="menu-icon tf-icons bx bx-table"></i>Add Fixture</button>
                           {% include 'scores_fixtures/fixtures_modal.html' %}
                         </div>
                       </div>
@@ -58,9 +58,9 @@
                                   </td>
                                   <td>{{rector.match_date_time}}</td>
                                   <td>
-                                    <a href="{% url 'scores:update_fixture' template_name rector.id %}" class="btn btn-warning">EDIT</a>
+                                    <a href="{% url 'scores:update_fixture' template_name rector.id %}" class="btn btn-warning"><i class="menu-icon tf-icons bx bxs-pencil"></i></a>
                                     
-                                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete{{forloop.counter}}">DELETE</button>
+                                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete{{forloop.counter}}"><i class="menu-icon tf-icons bx bxs-trash"></i></button>
                                     
                                     <div id="delete{{forloop.counter}}" class="modal fade" role="dialog">
                                       <div class="modal-dialog">

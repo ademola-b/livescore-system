@@ -57,8 +57,8 @@
                                       <td>{{team.coach}}</td>
                                       <td>
                                           <a href="{% url 'auth:team_players' team.team_id %}" class="btn btn-primary">PLAYERS</a>
-                                          <a href="{% url 'auth:update_team' team.pk %}" class="btn btn-warning">EDIT</a>
-                                          <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete{{forloop.counter}}">DELETE</button>
+                                          <a href="{% url 'auth:update_team' team.pk %}" class="btn btn-warning"><i class="menu-icon tf-icons bx bxs-pencil"></i></a>
+                                          <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete{{forloop.counter}}"><i class="menu-icon tf-icons bx bxs-trash"></i></button>
                                           
                                           <div id="delete{{forloop.counter}}" class="modal fade" role="dialog">
                                             <div class="modal-dialog">
