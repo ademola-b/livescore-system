@@ -25,7 +25,6 @@ def HomeViewL(request):
     context["dept_fixture"] = Fixture.objects.filter(tournament__name = "departmental")
     context['ended'] = Match.objects.filter(status__in = ['postponed', 'FT'])
 
-
     if request.htmx:
         return render(request, "utils/match_card.html", context)
     else:
@@ -172,7 +171,7 @@ class FixturesView(LoginRequiredMixin, SuccessMessageMixin, TemplateView, ListVi
         
         return self.render_to_response(context)
 
-class UpdateFixtureView(LoginRequiredMixin, SuccessMessageMixin, UpdateView): 
+class UpdateFixtureView(SuccessMessageMixin, LoginRequiredMixin, UpdateView): 
     login_url = "auth:login"
     model = Fixture
     template_name = "scores_fixtures/update_rector_fixture.html"
