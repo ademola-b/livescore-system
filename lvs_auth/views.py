@@ -183,6 +183,17 @@ class UpdateMatch(SuccessMessageMixin, UpdateView):
         context["team"] = Match.objects.get(id = match_id)
         return context
     
+    def match_time(self):
+        match = Match.objects.get(fixture__match_date_time__date=datetime.date.today())
+        global scheduler
+        if match.status != 'not_started':
+            match.time += 1
+            print(f"time: {match.time}")
+            match.save()
+        elif match.status == 'FT':
+            scheduler.remove_job('time_0001')
+
+    
     # def form_valid(self, request, form):
     #     if form.is_valid():
     #         instance = form.save(commit=False)
@@ -241,6 +252,7 @@ class UpdateMatchScoreV(SuccessMessageMixin, UpdateView):
 
         context['goalScorerForm'] = goalScorerForm
         context['cardBookingForm'] = cardBookingForm
+        context['match_time'] = match.time
         # context['matchStatsForm'] = matchStatsForm
 
         return context
@@ -250,7 +262,6 @@ class UpdateMatchScoreV(SuccessMessageMixin, UpdateView):
         match = Match.objects.get(pk = self.kwargs['pk'])
         match_stats = MatchStats.objects.update_or_create(match = match)
         
-
         goalScorerForm = self.form_class(request.POST)
         matchStatusForm = self.second_form_class(request.POST, instance=match)
         cardBookingForm = self.third_form_class(request.POST)
@@ -312,6 +323,7 @@ class UpdateMatchScoreV(SuccessMessageMixin, UpdateView):
 
                     getPlayer.save()
                     goalScorerData.match = match
+                    goalScorerData.time = match.time
                     goalScorerData.save()
                     match.save()
 
@@ -343,6 +355,7 @@ class UpdateMatchScoreV(SuccessMessageMixin, UpdateView):
                     getPlayer = Player.objects.get(name = cardBookingFormData.yellow_card.name)
 
                     cardBookingFormData.match = match
+                    cardBookingFormData.time = match.time
                     cardBookingFormData.yellow_card = getPlayer
                     cardBookingFormData.save()
 
@@ -364,7 +377,7 @@ class UpdateMatchScoreV(SuccessMessageMixin, UpdateView):
                     getPlayer = Player.objects.get(name = cardBookingFormData.red_card.name)
 
                     cardBookingFormData.match = match
-                    # cardBookingFormData.red_card = 
+                    cardBookingFormData.time = match.time
                     cardBookingFormData.save()
 
                     messages.success(request, "Card successfully booked to player")
@@ -432,6 +445,5 @@ class UpdateMatchScoreV(SuccessMessageMixin, UpdateView):
 
             else:
                 messages.warning(request, f"{matchStatsForm.errors}")
-
 
         return self.render_to_response(self.get_context_data(matchStatusForm=matchStatusForm, goalScorerForm=goalScorerForm))

@@ -89,7 +89,7 @@ class UpdateMatchForm(forms.ModelForm):
     match_status = [
     ("not_started", "not_started"),
     ("ON", "ON"),
-    ("HF", "HF"),
+    ("HT", "HT"),
     ("FT", "FT"),
     ("ET", "ET"),
     ("postponed", "postponed"),

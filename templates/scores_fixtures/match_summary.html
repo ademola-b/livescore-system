@@ -57,8 +57,10 @@
                                         <p class="mb-0"><small class="text-uppercase text-black font-weight-bold">
                                             {% if match.status == "not_started" %}
                                                 {{match.fixture.match_date_time.time}}
-                                            {% else %}
+                                            {% elif match.status == 'FT' or match.status == 'HT' %}
                                                 {{match.status}}
+                                            {% elif match.status == 'ON' %}
+                                                <h4><span id="timer" class="text-danger">{{match.time}}'</span></h4>
                                             {% endif %}
                                         </small></p>
                                     </div>
@@ -92,28 +94,23 @@
                               <li class="nav-item">
                                 <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Match Stats</a>
                               </li>
-                            
                             </ul>
                             <div class="tab-content" id="pills-tabContent">
                               <div class="tab-pane fade show active" id="pills-rector" role="tabpanel" aria-labelledby="pills-home-tab">
-                                    {% if match_summary %}
+                                    {% if object_list %}
                                         <div class="row align-items-center mx-auto">
-                                            {% for summary in match_summary %}
-                                                <p><i class="menu-icon tf-icons bx bx-football"></i> {{summary.scorer}}</p>   
+                                            {% for obj in object_list %}
+                                            {% if obj.scorer %}
+                                            <p>{{obj.time}}' ⚽ {{obj.scorer}}</p>  
+                                                {% elif obj.red_card %}
+                                                    <p>{{obj.time}}' 🟥 {{obj.red_card}}</p>
+                                                {% elif obj.yellow_card %}
+                                                    <p>{{obj.time}}' 🟨 {{obj.yellow_card}}</p>
+                                                {% endif %}
                                             {% endfor %}
                                         </div>
-                                    {% endif %}
-                                    {% if cards %}
-                                        <div class="row align-items-center mx-auto">
-                                            {% for card in cards %}
-                                            {% if card.yellow_card is not None %}
-                                                <p><i class="menu-icon tf-icons bx bx-card"></i> {{card.yellow_card}}</p>   
-                                            {% endif %}
-                                            {% if card.red_card is not None %}
-                                                <p><i class="menu-icon tf-icons bx bx-card"></i> {{card.red_card}}</p>   
-                                            {% endif %}
-                                            {% endfor %}
-                                        </div>
+                                    {% else %}
+                                        <h3 class="text-danger">No Match Summary Found</h3>
                                     {% endif %}
                               </div>
                               <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">

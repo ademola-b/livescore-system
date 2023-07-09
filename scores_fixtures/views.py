@@ -1,4 +1,5 @@
-import datetime
+from datetime import date
+from itertools import chain
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -8,47 +9,78 @@ from django.views.generic import (ListView, FormView, TemplateView,
                                    View, UpdateView, DeleteView)
 from django.shortcuts import render, redirect
 
-
 from . forms import FixturesForm
 from . models import Fixture, Tournament, Team, Match, GoalScorers, Card, MatchStats
 # Create your views here.
 
-def HomeViewL(request):
-    context = {}
-    current_date = datetime.date.today()
-    fixture_date = Fixture.objects.filter(match_date_time__date = current_date)
-    print(f"path: {request.path}")
-    context['today_match'] = Match.objects.filter(fixture__in=fixture_date)
-    context['next_match'] = Match.objects.filter(fixture__match_date_time__date__gt=current_date).first()
-   
-    context["rector_fixture"] = Fixture.objects.filter(tournament__name = "rector_cup")
-    context["dept_fixture"] = Fixture.objects.filter(tournament__name = "departmental")
-    context['ended'] = Match.objects.filter(status__in = ['postponed', 'FT'])
-
-    if request.htmx:
-        return render(request, "utils/match_card.html", context)
-    else:
-        return render(request, "scores_fixtures/index.html", context=context)
-
-class HomeView(ListView):
-    model = Fixture
-    context_object_name = "matches"
-    template_name = "scores_fixtures/index.html"
-    # current_date = timezone.now().date()
-    current_date = datetime.date.today()
-    # print(f"current date: {current_date}")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        fixture_date = Fixture.objects.filter(match_date_time__date = self.current_date)
-   
+class HomeViewL(View):
+    def get(self, request):
+        context = {}
+        current_date = date.today()
+        fixture_date = Fixture.objects.filter(match_date_time__date=current_date)
+        print(f"path: {request.path}")
         context['today_match'] = Match.objects.filter(fixture__in=fixture_date)
-        # context['home_team'] = 
-        context["rector_fixture"] = Fixture.objects.filter(tournament__name = "rector_cup")
-        context["dept_fixture"] = Fixture.objects.filter(tournament__name = "departmental")
-        return context
+        context['next_match'] = Match.objects.filter(fixture__match_date_time__date__gt=current_date).first()
+       
+        context["rector_fixture"] = Fixture.objects.filter(tournament__name="rector_cup")
+        context["dept_fixture"] = Fixture.objects.filter(tournament__name="departmental")
+        context['ended'] = Match.objects.filter(status__in=['postponed', 'FT'])
     
+        # match time
+        match = Match.objects.get(fixture__match_date_time__date=current_date)
+        context['match_time'] = match.time
 
+        # print(f"id: {match.id}")
+
+        if request.htmx:
+            return render(request, "utils/match_card.html", context)
+        else:
+            return render(request, "scores_fixtures/index.html", context=context)
+       
+
+# def HomeViewL(request):
+#     context = {}
+#     current_date = datetime.date.today()
+#     fixture_date = Fixture.objects.filter(match_date_time__date = current_date)
+#     print(f"path: {request.path}")
+#     context['today_match'] = Match.objects.filter(fixture__in=fixture_date)
+#     context['next_match'] = Match.objects.filter(fixture__match_date_time__date__gt=current_date).first()
+   
+#     context["rector_fixture"] = Fixture.objects.filter(tournament__name = "rector_cup")
+#     context["dept_fixture"] = Fixture.objects.filter(tournament__name = "departmental")
+#     context['ended'] = Match.objects.filter(status__in = ['postponed', 'FT'])
+
+#     # match time
+#     match = Match.objects.get(fixture__match_date_time__date = current_date)
+#     context['match_time'] = match.time
+
+#     print(f"id: {match.id}")
+
+#     if request.htmx:
+#         return render(request, "utils/match_card.html", context)
+#     else:
+#         return render(request, "scores_fixtures/index.html", context=context)
+
+# class HomeView(ListView):
+#     model = Fixture
+#     context_object_name = "matches"
+#     template_name = "scores_fixtures/index.html"
+#     # current_date = timezone.now().date()
+#     current_date = datetime.date.today()
+#     # print(f"current date: {current_date}")
+
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         fixture_date = Fixture.objects.filter(match_date_time__date = self.current_date)
+   
+#         context['today_match'] = Match.objects.filter(fixture__in=fixture_date)
+#         # context['home_team'] = 
+#         context["rector_fixture"] = Fixture.objects.filter(tournament__name = "rector_cup")
+#         context["dept_fixture"] = Fixture.objects.filter(tournament__name = "departmental")
+#         return context
+    
+# class UpdateMatchTime(UpdateView):
+#     model = 
 class FixturesView(LoginRequiredMixin, SuccessMessageMixin, TemplateView, ListView, FormView):
     login_url = "auth:login"
     model = Fixture
@@ -127,6 +159,13 @@ class FixturesView(LoginRequiredMixin, SuccessMessageMixin, TemplateView, ListVi
                 if instance.match_date_time.__lt__(timezone.now()):
                     messages.warning(request, "Older dates can't be supplied")
                     return redirect("scores:fixtures", self.kwargs['template_name'])
+                                
+                # check if form already exist
+                fixture = Fixture.objects.filter(match_date_time = instance.match_date_time).exists()
+                if fixture:
+                    messages.warning(request, "Fixture Present Already, Kindly check the form")
+                    return redirect("scores:fixtures", self.kwargs['template_name'])
+
                     
                 instance.tournament = tournament
                 instance.save()
@@ -220,6 +259,12 @@ class UpdateFixtureView(SuccessMessageMixin, LoginRequiredMixin, UpdateView):
                  # compare supplied date
                 if instance.match_date_time.__lt__(timezone.now()):
                     messages.warning(request, "Older dates can't be supplied")
+                    return redirect("scores:update_fixture", self.kwargs['template_name'], self.kwargs['pk'])
+                
+                # check if the match has not been played
+                match = Match.objects.get(fixture = self.kwargs['pk'])
+                if match.status == 'FT':
+                    messages.warning(request, "Fixture can't be updated because, it has been played.")
                     return redirect("scores:update_fixture", self.kwargs['template_name'], self.kwargs['pk'])
                     
                 instance.tournament = tournament
@@ -315,13 +360,37 @@ class MatchesView(View):
 class MatchSummary(ListView):
     model = GoalScorers
     template_name = "scores_fixtures/match_summary.html"
-    context_object_name = 'match_summary'
+    # context_object_name = 'match_summary'
 
+    def get_queryset(self):
+        match = Match.objects.get(pk=self.kwargs['pk'])
+        match_summary = []
+        goalScorers = GoalScorers.objects.filter(match = self.kwargs['pk']).order_by('time')
+        cards = Card.objects.filter(match = match).order_by('time')
+
+        match_summary.append(goalScorers)
+        match_summary.append(cards)
+
+        merge_qs = list(chain(goalScorers, cards))
+        
+        sorted_qs = sorted(merge_qs, key=lambda obj: obj.time)
+
+        print(f"len-goalS: {len(goalScorers)}")
+        print(f"len-card: {len(cards)}")
+        print(f"len-merge_qs: {len(merge_qs)}")
+        # print(f"merg_qs: {merge_qs}")
+
+        for qs in sorted_qs:
+            print(qs)
+
+        return sorted_qs
+    
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
             context["match"] = Match.objects.get(pk=self.kwargs['pk'])
-            context['cards'] = Card.objects.filter(match = context['match'])
+            # context['cards'] = Card.objects.filter(match = context['match']).order_by('time')
             context['match_stat'] = MatchStats.objects.filter(match = context['match'])
             # get cards count
             homeTeamRedCard = Card.objects.filter(red_card__team_id = context['match'].fixture.home_team)
@@ -334,6 +403,8 @@ class MatchSummary(ListView):
             context['away_yellow'] = len(awayTeamYellowCard)
             context['home_red'] = len(homeTeamRedCard)
             context['away_red'] = len(awayTeamRedCard)
+
+            # print(f"context: {context}")
 
             
         except Match.DoesNotExist:

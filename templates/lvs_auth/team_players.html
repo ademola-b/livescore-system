@@ -90,7 +90,7 @@
                                                   {% csrf_token %}
                                                     
                                                     <div class="row mb-3">
-                                                      <h5>Are you sure you want to delete {{player.name}}?</h4>
+                                                    <h5>Are you sure you want to delete {{player.name | title}}? <span class="text-warning">Other data relating to {{player.name | title}} will also be deleted</span></h4>
                                                     </div>
                                                       <input type="hidden" value="{{team_pk}}" name="team_pk">
                                                       <hr/>

@@ -29,7 +29,7 @@
                     <div class="d-flex align-items-end row">
                       <div class="col-sm-7">
                         <div class="card-body">
-                          <h3 class="card-title text-primary">Update Match</h3>
+                          <h3 class="card-title text-primary">Update Match Stats</h3>
                         </div>      
                       </div> 
                     </div>
@@ -37,13 +37,52 @@
                       {% include 'utils/messages.html' %}
 
                       <hr class="my-0 mb-4" />
-                      <div class="row mb-3">
-                        <h4 class="col-sm-3">{{match.fixture.home_team.deptName}}</h4>
-                        <div class="col-sm-2">
-                          <div class="bg-black py-2 px-4 mb-2 text-white d-inline-block rounded"><span class="h3">{{match.home_team_score}}:{{match.away_team_score}}</span></div>
+                      
+                      <div class="row mb-3 align-items-center">
+                        <div class="col-md-12 col-lg-4 mb-4 mb-lg-0">
+                            <div class="text-center text-lg-left">
+                                <div class="d-block d-lg-flex align-items-center">
+                                <div class="image mx-auto mb-3 mb-lg-0 mr-lg-3">
+                                    <!-- <img src="images/img_1_sq.jpg" alt="Image" class="img-fluid"> -->
+                                </div>
+                                <div class="text">
+                                    <h3 class="mb-0 text-black">{{match.fixture.home_team}}</h3>
+                                </div>
+                                </div>
+                            </div>
                         </div>
-                        <h4 class="col-sm-3">{{match.fixture.away_team.deptName}}</h4>
+
+                        <div class="col-md-12 col-lg-4 text-center mb-4 mb-lg-0">
+                        <div class="d-inline-block">
+                            {% comment %} <p class="mb-2"><small class="text-uppercase text-black font-weight-bold">Premier League &mdash; Round 10</small></p> {% endcomment %}
+                            <div class="bg-black py-2 px-4 mb-2 text-white d-inline-block rounded"><span class="h3">{{match.home_team_score}}:{{match.away_team_score}}</span></div>
+                            <p class="mb-0"><small class="text-uppercase text-black font-weight-bold">
+                                {% if match.status == "not_started" %}
+                                    {{match.fixture.match_date_time.time}}
+                                {% else %}
+                                  <h4><span id="timer" class="text-danger">{{match_time}}'</span></h4>
+                                    {% comment %} {{match.status}} {% endcomment %}
+                                {% endif %}
+                            </small></p>
+                        </div>
+                        </div>
+            
+                        <div class="col-md-12 col-lg-4 text-center text-lg-right">
+                        <div class="">
+                            <div class="d-block d-lg-flex align-items-center">
+                            <div class="image mx-auto ml-lg-3 mb-3 mb-lg-0 order-2">
+                                <!-- <img src="images/img_4_sq.jpg" alt="Image" class="img-fluid"> -->
+                            </div>
+                            <div class="text order-1">
+                                <h3 class="mb-0 text-black">{{match.fixture.away_team}}</h3>
+                            </div>
+                            </div>
+                        </div>
+                        </div>      
+                        
                       </div>
+
+
                       <div class="row">
                         <div class="col-6">
                           <form action="{% url 'auth:update_match_score' match.pk %}" method="post">

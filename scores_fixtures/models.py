@@ -6,7 +6,7 @@ from tournament.models import Tournament, Team, Player
 match_status = [
     ("not_started", "not_started"),
     ("ON", "ON"),
-    ("HF", "HF"),
+    ("HT", "HT"),
     ("FT", "FT"),
     ("ET", "ET"),
     ("postponed", "postponed"),
@@ -29,7 +29,7 @@ class Match(models.Model):
     away_team_formation = models.CharField(max_length=10, default="4-4-2")
     referee = models.CharField(max_length=30)
     status = models.CharField(max_length=15, choices=match_status, default="not_started")
-    time = models.TimeField(default="00:00")
+    time = models.IntegerField(default=0)
     
     class Meta:
         verbose_name_plural = "Matches"

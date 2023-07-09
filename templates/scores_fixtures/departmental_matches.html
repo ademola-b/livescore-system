@@ -36,61 +36,38 @@
                     </div>
                     <div class="container">
                   
-                        <div class="row mb-5">
+                        <div class="row mb-3">
                           <div class="col-md-12">
                             {% if dept_matches %}
-                            {% for dept in dept_matches %}
-                            <div class="border mb-3 rounded d-block d-lg-flex align-items-center p-3 next-match">
-                              <div class="row align-items-center">
-                                <div class="col-md-12 col-lg-4 mb-4 mb-lg-0">
-                            
-                                    <div class="text-center text-lg-left">
-                                    <div class="d-block d-lg-flex align-items-center">
-                                        <div class="image mx-auto mb-3 mb-lg-0 mr-lg-3">
+                              {% for dept in dept_matches %}
+                                <a href="{% url 'scores:match_summary' dept.pk %}">
+                                  <div class="border mb-3 rounded d-block d-lg-flex align-items-center p-3 next-match">
+                                    <div class="mr-auto order-md-1 w-60 text-center text-lg-left mb-3 mb-lg-0">
+                                      {{dept.fixture.match_date_time}} <span class="text-uppercase text-black font-weight-bold"> {{dept.status}} </span>
+                                    </div>
+                      
+                                    <div class="ml-auto pr-4 order-md-2">
+                                      <div class="h5 text-black text-uppercase text-center text-lg-left">
+                                        <div class="d-block d-md-inline-block mb-3 mb-lg-0">
+                                          <span class="d-block d-md-inline-block ml-0 ml-md-3 ml-lg-0">{{dept.fixture.home_team}} </span> <span class="h3 text-danger">{{dept.home_team_score}}</span>
                                         </div>
-                                        <div class="text">
-                                        <h3 class="h5 mb-0 text-black">{{dept.fixture.home_team}}</h3>
+                                        <span class="text-muted mx-3 text-normal mb-3 mb-lg-0 d-block d-md-inline ">vs</span> 
+                                        <div class="d-block d-md-inline-block"> <span class="h3 text-danger">{{dept.away_team_score}}</span>
+                                          <span class="d-block d-md-inline-block ml-0 ml-md-3 ml-lg-0">{{dept.fixture.away_team}}</span>
                                         </div>
+                                      </div>
                                     </div>
-                                    </div>
-                            
-                                </div>
-                                <div class="col-md-12 col-lg-4 text-center mb-4 mb-lg-0">
-                                    <div class="d-inline-block">
-                                    <div class="bg-black py-2 px-4 mb-2 text-white d-inline-block rounded"><span class="h3">{{dept.home_team_score}}:{{dept.away_team_score}}</span></div>
-                                    <p class="mb-0">
-                                        <span class="text-uppercase text-black font-weight-bold">
-                                            {% if dept.status == "not_started" %}
-                                                {{dept.fixture.match_date_time.time}}
-                                            {% else %}
-                                                {{dept.status}}
-                                            {% endif %}
-                                        </span>
-                                    </p>
-                                    </div>
-                                </div>
-                            
-                                <div class="col-md-12 col-lg-4 text-center text-lg-right">
-                                    <div class="">
-                                    <div class="d-block d-lg-flex align-items-center">
-                            
-                                        <div class="text order-1">
-                                        <h3 class="h5 mb-0 text-black">{{dept.fixture.away_team}}</h3>
-                                        </div>
-                                    </div>
-                                    </div>
-                                </div>
-                            </div>
-                            </div>
-                          {% endfor %}
+                                  </div>
+                                </a>
+                              {% endfor %}
                             {% else %}
-                            <div class="col text-center">
-                              <h4 class="">No MATCH FOR THE DEPARTMENTAL</h4>
-                          </div>
+                              <div class="col text-center">
+                                <h4 class="">No MATCH FOR THE DEPARTMENTAL</h4>
+                              </div>
                             {% endif %}
                           </div>
-                        </div>
-                        
+                        </div>   
+
                       </div>
                   </div>
                 </div>

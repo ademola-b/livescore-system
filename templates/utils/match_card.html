@@ -5,7 +5,8 @@
     {% else %}
         <div hx-get="{% url 'scores:index' %}" hx-trigger="every 5s" hx-swap="innerHTML"> 
     {% endif %}
-    {% if request.user.is_staff %} <a href=" {% if today.status == "not_started" %}{% url 'auth:update_match' today.id %} {% elif today.status == "FT" %} {% url 'scores:index' %} {% else %}{% url 'auth:update_match_score' today.id %}{% endif %}"> 
+    {% if request.user.is_staff %} 
+        <a href=" {% if today.status == "not_started" %}{% url 'auth:update_match' today.id %} {% elif today.status == "FT" %} {% url 'scores:match_summary' today.pk %} {% else %}{% url 'auth:update_match_score' today.id %}{% endif %}"> 
         
         {% else %} 
             <a href="{% url 'scores:match_summary' today.pk %}">
@@ -34,8 +35,10 @@
                         <span class="text-uppercase text-black font-weight-bold">
                             {% if today.status == "not_started" %}
                                 {{today.fixture.match_date_time.time}}
-                            {% else %}
+                            {% elif today.status == 'FT' or today.status == 'HT' %}
                                 {{today.status}}
+                            {% elif today.status == 'ON' %}
+                                <h4><span id="timer" class="text-danger">{{match_time}}'</span></h4>
                             {% endif %}
                         </span>
                     </p>

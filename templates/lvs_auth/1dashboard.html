@@ -31,23 +31,7 @@
                         Timer
                         <div class="card-body">
                           <h3 class="card-title text-primary">Today's Match 🎉Timer: 
-                          <h1></h1>
-
-    {% comment %} <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> {% endcomment %}
-                        {% comment %} <script>
-                            // Function to update the timer value
-                            function updateTimer() {
-                                $.ajax({
-                                    url: '{% url "update_timer" %}',
-                                    success: function(data) {
-                                        $('#timer').text(data.value);
-                                    }
-                                });
-                            }
-
-                            // Call updateTimer function every second
-                            setInterval(updateTimer, 1000);
-                        </script> {% endcomment %}
+                          
                         </div>      
                       </div> 
                     </div>
@@ -74,6 +58,8 @@
                               
                             {% endif %}
                         </div>
+
+                        {% include 'scores_fixtures/timer.html' %}
                        
                           <h4 class="card-title text-primary">Next Match</h4>
                        
