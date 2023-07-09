@@ -84,35 +84,85 @@
                         </div>
                         {% endif %}
                         
-                        {{match_summary.scorer.name}}
+                        <div class="site-block-tab">
+                            <ul class="nav nav-pills" id="pills-tab" role="tablist">
+                              <li class="nav-item">
+                                <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-rector" role="tab" aria-controls="pills-home" aria-selected="true">Summary</a>
+                              </li>
+                              <li class="nav-item">
+                                <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Match Stats</a>
+                              </li>
+                            
+                            </ul>
+                            <div class="tab-content" id="pills-tabContent">
+                              <div class="tab-pane fade show active" id="pills-rector" role="tabpanel" aria-labelledby="pills-home-tab">
+                                    {% if match_summary %}
+                                        <div class="row align-items-center mx-auto">
+                                            {% for summary in match_summary %}
+                                                <p><i class="menu-icon tf-icons bx bx-football"></i> {{summary.scorer}}</p>   
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    {% if cards %}
+                                        <div class="row align-items-center mx-auto">
+                                            {% for card in cards %}
+                                            {% if card.yellow_card is not None %}
+                                                <p><i class="menu-icon tf-icons bx bx-card"></i> {{card.yellow_card}}</p>   
+                                            {% endif %}
+                                            {% if card.red_card is not None %}
+                                                <p><i class="menu-icon tf-icons bx bx-card"></i> {{card.red_card}}</p>   
+                                            {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                              </div>
+                              <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+                                
+                                <div class="row align-items-center">
+                                  <div class="col-md-12">
+                                     {% if match_stat %}
+                                      
+                                        {% for stat in match_stat %}
+                                            <div class="row mb-3">
+                                                <div class="col-4">IDK Yet</div>
+                                                <div class="col-4"><span class="badge bg-info">BALL POSSESSION</span></div>
+                                                <div class="col-4">IDK Yet</div>
+                                            </div>
+                                            <div class="row mb-3">
+                                                <div class="col-4">{{stat.home_corner}}</div>
+                                                <div class="col-4"><span class="badge bg-primary">CORNERS</span></div>
+                                                <div class="col-4">{{stat.away_corner}}</div>
+                                            </div>
+                                            <div class="row mb-3">
+                                                <div class="col-4">{{stat.home_fouls}}</div>
+                                                <div class="col-4"><span class="badge bg-danger">FOULS</span></div>
+                                                <div class="col-4">{{stat.away_fouls}}</div>
+                                            </div>
+                                            <div class="row mb-3">
+                                                <div class="col-4">{{stat.home_offside}}</div>
+                                                <div class="col-4"><span class="badge bg-dark">OFFSIDE</span></div>
+                                                <div class="col-4">{{stat.away_offside}}</div>
+                                            </div>
+                                            <div class="row mb-3">
+                                                <div class="col-4">{{home_yellow}}</div>
+                                                <div class="col-4"><span class="badge bg-warning">YELLOW CARDS</span></div>
+                                                <div class="col-4">{{away_yellow}}</div>
+                                            </div>
+                                            <div class="row mb-3">
+                                                <div class="col-4">{{home_red}}</div>
+                                                <div class="col-4"><span class="badge bg-danger">RED CARDS</span></div>
+                                                <div class="col-4">{{away_red}}</div>
+                                            </div>
 
-                        {% if match_summary %}
-                        <div class="row align-items-center mx-auto">
-                                {% for summary in match_summary %}
-                                <p>{{summary.scorer}}</p>
-                                {% comment %} <h3 class="h5 mb-0 text-black">{{summary.scorer.name}}</h3>  {% endcomment %}
-                                {% comment %} <div class="col-md-12 col-lg-4 mb-4 mb-lg-0">
-                                    <div class="text-center text-lg-left">
-                                        <div class="d-block d-lg-flex align-items-center">
-                                        <div class="image mx-auto mb-3 mb-lg-0 mr-lg-3">
-                                            <!-- <img src="images/img_1_sq.jpg" alt="Image" class="img-fluid"> -->
-                                        </div>
-                                        <div class="text">
-                                            <span class="text-uppercase small country">{{summary.scorer.name}}</span>
-                                            
-                                            <h3 class="h5 mb-0 text-black">{{summary.assist}}</h3>
-                                            
-                                        </div>
-                                        </div>
+                                        {% endfor %}
+                                     {% endif %}
                                     </div>
-                                </div> {% endcomment %}
-                                    
-                                {% endfor %}
-                            </div>  
+                                  </div>
+                            
+                              </div>
+                            </div>
+                          </div>                        
                         
-                        </div>
-                        
-                        {% endif %}
                         
 
                   </div>

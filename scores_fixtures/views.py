@@ -10,7 +10,7 @@ from django.shortcuts import render, redirect
 
 
 from . forms import FixturesForm
-from . models import Fixture, Tournament, Team, Match, GoalScorers
+from . models import Fixture, Tournament, Team, Match, GoalScorers, Card, MatchStats
 # Create your views here.
 
 def HomeViewL(request):
@@ -321,6 +321,21 @@ class MatchSummary(ListView):
         context = super().get_context_data(**kwargs)
         try:
             context["match"] = Match.objects.get(pk=self.kwargs['pk'])
+            context['cards'] = Card.objects.filter(match = context['match'])
+            context['match_stat'] = MatchStats.objects.filter(match = context['match'])
+            # get cards count
+            homeTeamRedCard = Card.objects.filter(red_card__team_id = context['match'].fixture.home_team)
+            awayTeamRedCard = Card.objects.filter(red_card__team_id = context['match'].fixture.away_team)
+
+            homeTeamYellowCard = Card.objects.filter(yellow_card__team_id = context['match'].fixture.home_team)
+            awayTeamYellowCard = Card.objects.filter(yellow_card__team_id = context['match'].fixture.away_team)
+
+            context['home_yellow'] = len(homeTeamYellowCard)
+            context['away_yellow'] = len(awayTeamYellowCard)
+            context['home_red'] = len(homeTeamRedCard)
+            context['away_red'] = len(awayTeamRedCard)
+
+            
         except Match.DoesNotExist:
             return context
         return context
