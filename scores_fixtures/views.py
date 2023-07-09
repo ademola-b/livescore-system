@@ -10,7 +10,7 @@ from django.shortcuts import render, redirect
 
 
 from . forms import FixturesForm
-from . models import Fixture, Tournament, Team, Match
+from . models import Fixture, Tournament, Team, Match, GoalScorers
 # Create your views here.
 
 def HomeViewL(request):
@@ -311,6 +311,21 @@ class MatchesView(View):
             context["dept_matches"] = Match.objects.filter(fixture__tournament__name = "departmental", status__in = ['postponed', 'FT'])           
         return render(request, self.get_template_names(), context)
         # return self.render_to_response(context)
+
+class MatchSummary(ListView):
+    model = GoalScorers
+    template_name = "scores_fixtures/match_summary.html"
+    context_object_name = 'match_summary'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            context["match"] = Match.objects.get(pk=self.kwargs['pk'])
+        except Match.DoesNotExist:
+            return context
+        return context
+
+    
 
 
 

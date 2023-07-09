@@ -34,76 +34,111 @@
                       </div> 
                     </div>
                     <div class="container">
-                        
-                        <form action="" method="post">
+                      {% include 'utils/messages.html' %}
+
+                      <hr class="my-0 mb-4" />
+                      <div class="row mb-3">
+                        <h4 class="col-sm-3">{{match.fixture.home_team.deptName}}</h4>
+                        <div class="col-sm-2">
+                          <div class="bg-black py-2 px-4 mb-2 text-white d-inline-block rounded"><span class="h3">{{match.home_team_score}}:{{match.away_team_score}}</span></div>
+                        </div>
+                        <h4 class="col-sm-3">{{match.fixture.away_team.deptName}}</h4>
+                      </div>
+                      <div class="row">
+                        <div class="col-6">
+                          <form action="{% url 'auth:update_match_score' match.pk %}" method="post">
+                              {% csrf_token %}
+
+                                  <div class="row mb-3">
+                                    <label class="col-form-label" for="basic-default-name">Team</label>
+                                    <div class="col-6">
+                                          {{goalScorerForm.team}}
+                                    </div> 
+                                  </div>
+                                          
+                                  <div class="row mb-3">
+                                    {% if goalScorerForm.scorer.errors %}
+                                      <div class="alert alert-danger mt-2" role="alert">
+                                        {{ goalScorerForm.scorer.errors }}
+                                      </div>
+                                    {% endif %}
+                                    <label class="col-form-label" for="basic-default-name">Goal Scorer</label>
+                                    <div class="col-6">
+                                        {{goalScorerForm.scorer}}
+                                    </div>
+                                  </div>
+                                          
+                                  <div class="row mb-3">
+                                    {% if goalScorerForm.assist.errors %}
+                                      <div class="alert alert-danger mt-2" role="alert">
+                                        {{ goalScorerForm.assist.errors }}
+                                      </div>
+                                    {% endif %}
+                                    <label class="col-form-label" for="basic-default-name">Goal Assist</label>
+                                    <div class="col-6">
+                                        {{goalScorerForm.assist}}
+                                    </div>
+  
+                                  </div>
+  
+                                  <div class="row mb-3">
+                                    <div class="col-4">
+                                      <button type="submit" class="btn btn-primary" name="score_btn">Update Score</button>
+                                    </div>
+                                  </div>
+                          </form>
+                        </div> 
+  
+                        <div class="col-6">
+                          <form action="" method="post">
                             {% csrf_token %}
-                            <hr class="my-0 mb-4" />
-                            {% include 'utils/messages.html' %}
+                            <div class="input-group">
+                              <label for="defaultFormControlInput" class="form-label">Status</label> &nbsp;
+                              {{matchStatusForm.status}} 
+                                <button class="btn btn-primary" type="submit" id="button-addon2" name="status_btn">Update</button>
+                              </div>
+                          </form>
+                          <hr>
+                          <form action="" method="post">
+                            {% csrf_token %}
+                            <div class="input-group">
+                              <label for="defaultFormControlInput" class="form-label">Red Card</label> &nbsp;
+                              {{cardBookingForm.red_card}} 
+                                <button class="btn btn-danger" type="submit" id="button-addon2" name="red">Book</button>
+                            </div>
+                            <br>
+                            <div class="input-group">
+                              <label for="defaultFormControlInput" class="form-label">Yellow Card</label> &nbsp;
+                              {{cardBookingForm.yellow_card}} 
+                                <button class="btn btn-warning" type="submit" id="button-addon2" name="yellow">Book</button>
+                            </div>
+                          </form>
+                          <hr>
+                          <form action="" method="post">
+                            {% csrf_token %}
+                            <div class="input-group">
+                              <label for="defaultFormControlInput" class="form-label">Corner</label> &nbsp;
+                              {{matchStatsForm.corner}} 
+                            </div>
+                            <br>
+                            <div class="input-group">
+                              <label for="defaultFormControlInput" class="form-label">Foul</label> &nbsp;
+                              {{matchStatsForm.foul}} 
+                            </div>
+                            <br>
+                            <div class="input-group">
+                              <label for="defaultFormControlInput" class="form-label">Offside</label> &nbsp;
+                              {{matchStatsForm.offside}} 
+                            </div>
+                            <br>
+                            <button type="submit" class="btn btn-primary" name="match_stat_btn">Update Match Stat</button>
 
+                          </form>
+                          <hr>
 
-                            <div class="row mb-3">
-                              <h5 class="col-sm-2">Status {{matchStatusForm.status}} </h5>
-                              <h4 class="col-sm-3">{{match.fixture.home_team.deptName}}</h4>
-                              <div class="col-sm-2">
-                                <div class="bg-black py-2 px-4 mb-2 text-white d-inline-block rounded"><span class="h3">{{match.home_team_score}}:{{match.away_team_score}}</span></div>
-                              </div>
-                              <h4 class="col-sm-3">{{match.fixture.away_team.deptName}}</h4>
-                            </div>
-                          
-                            <div class="row mb-3">
-                              {% if goalScorerForm.team_score.errors.as_text %}
-                                <div class="alert alert-danger mt-2" role="alert">
-                                  {{ form.home_team_score.errors }}
-                                </div>
-                              {% endif %}
-                              <label class="col-sm-2 col-form-label" for="basic-default-name">Team</label>
-                              <div class="col-sm-3">
-                                  {{goalScorerForm.team}}
-                                  <!-- {{form.home_team_score}} -->
-                              </div>
-
-                              {% if form.away_team_score.errors %}
-                                <div class="alert alert-danger mt-2" role="alert">
-                                  {{ form.away_team_score.errors }}
-                                </div>
-                              {% endif %}
-                              <label class="col-sm-2 col-form-label" for="basic-default-name"></label>
-                              <div class="col-sm-3">
-                                  <!-- {{form.away_team_score}} -->
-                              </div>
-                            </div>
-                                    
-                            <div class="row mb-3">
-                              {% if goalScorerForm.scorer.errors %}
-                                <div class="alert alert-danger mt-2" role="alert">
-                                  {{ goalScorerForm.scorer.errors }}
-                                </div>
-                              {% endif %}
-                              <label class="col-sm-2 col-form-label" for="basic-default-name">Goal Scorer</label>
-                              <div class="col-sm-3">
-                                  {{goalScorerForm.scorer}}
-                              </div>
-                            </div>
-                                    
-                            <div class="row mb-3">
-                              <!-- <span>Scores</span> -->
-                              {% if goalScorerForm.assist.errors %}
-                                <div class="alert alert-danger mt-2" role="alert">
-                                  {{ goalScorerForm.assist.errors }}
-                                </div>
-                              {% endif %}
-                              <label class="col-sm-2 col-form-label" for="basic-default-name">Goal Assist</label>
-                              <div class="col-sm-3">
-                                  {{goalScorerForm.assist}}
-                              </div>
-
-                            </div>
-                                    
-                            <hr/>
-                            <div class="modal-footer">
-                              <button type="submit" class="btn btn-primary">Update</button>
-                            </div>
-                      </form> 
+                        </div>       
+                      </div>
+                            
                     </div>
                   </div>
                 </div>

@@ -3,9 +3,13 @@
 {% if today.status == "postponed" or today.status == "FT" or today.status == "not_started" %}
 <div>
     {% else %}
-    <div hx-get="{% url 'scores:index' %}" hx-trigger="every 5s" hx-swap="innerHTML"> 
+        <div hx-get="{% url 'scores:index' %}" hx-trigger="every 5s" hx-swap="innerHTML"> 
     {% endif %}
-    {% if request.user.is_staff %} <a href=" {% if today.status == "not_started" %}{% url 'auth:update_match' today.id %} {% elif today.status == "FT" %} {% url 'scores:index' %} {% else %}{% url 'auth:update_match_score' today.id %}{% endif %}">{% endif %}
+    {% if request.user.is_staff %} <a href=" {% if today.status == "not_started" %}{% url 'auth:update_match' today.id %} {% elif today.status == "FT" %} {% url 'scores:index' %} {% else %}{% url 'auth:update_match_score' today.id %}{% endif %}"> 
+        
+        {% else %} 
+            <a href="{% url 'scores:match_summary' today.pk %}">
+        {% endif %}
     
         <div class="bg-image overlay-success rounded mb-5" style="background-image: url( {% static 'assets/img/backgrounds/bg_3.jpg' %} );"  data-stellar-background-ratio="0.5">
             <div class="row align-items-center">
@@ -51,6 +55,6 @@
             </div>
             {% comment %} {% include 'utils/match_card.html' %}   {% endcomment %}
         </div>
-        {% if request.user.is_staff %}</a> {% endif %}    
+        {% if request.user.is_staff %}</a> {% else %}</a> {% endif %}    
     </div>
 {% endfor %}

@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
-from scores_fixtures.models import GoalScorers, Match
+from scores_fixtures.models import GoalScorers, Match, MatchStats, Card
 
 from tournament.models import Team, Department, Player, Tournament
 
@@ -112,7 +112,7 @@ class UpdateMatchForm(forms.ModelForm):
         fields = ['referee','status']
 
 
-class UpdateScoreForm(forms.ModelForm):
+# class UpdateScoreForm(forms.ModelForm):
     # home_team_score = forms.CharField(widget=forms.NumberInput(
     #     attrs={
     #         'class': 'form-control'
@@ -125,16 +125,16 @@ class UpdateScoreForm(forms.ModelForm):
     #     }
     # ))
 
-    class Meta:
-        model = Match
-        exclude = "__all__"
-        # fields = ['home_team_score', 'away_team_score']
+    # class Meta:
+    #     model = Match
+    #     exclude = "__all__"
+    #     # fields = ['home_team_score', 'away_team_score']
 
-    def __init__(self, *args, **kwargs):
-        pk = kwargs.pop('pk', None)
-        super(UpdateScoreForm, self).__init__(*args, **kwargs)
-        print(f"match: {pk}")
-        match = Match.objects.get(pk = 1)
+    # def __init__(self, *args, **kwargs):
+    #     pk = kwargs.pop('pk', None)
+    #     super(UpdateScoreForm, self).__init__(*args, **kwargs)
+    #     print(f"match: {pk}")
+    #     match = Match.objects.get(pk = 1)
 
         # self.fields['home_team_score'].initial = match.home_team_score
         # self.fields['away_team_score'].initial = match.away_team_score
@@ -175,7 +175,7 @@ class UpdateMatchStatusForm(forms.ModelForm):
 
     status = forms.ChoiceField(choices=match_status, required=False, widget=forms.Select(
         attrs={
-            'class': 'form-control select form-select'
+            'class': 'form-control select form-select', 'name':'status'
         }
     ))
 
@@ -202,8 +202,7 @@ class UpdateGoalScorerForm(forms.ModelForm):
             'class': 'form-control select form-select'
         }
     ))
-
-    
+  
     class Meta:
         model = GoalScorers
         fields = [
@@ -212,4 +211,63 @@ class UpdateGoalScorerForm(forms.ModelForm):
             'assist',
         ]
         
+class UpdateCardBookingForm(forms.ModelForm):
+    red_card = forms.ModelChoiceField(queryset=Player.objects.none(), required=False, empty_label="Select player", widget=forms.Select(
+        attrs = {
+            'class': 'form-control select form-select'
+        }
+    ))
+    yellow_card = forms.ModelChoiceField(queryset=Player.objects.none(), required=False, empty_label="Select player", widget=forms.Select(
+        attrs = {
+            'class': 'form-control select form-select'
+        }
+    ))
 
+    class Meta:
+        model = Card
+        fields = [
+            'red_card',
+            'yellow_card'
+        ]
+ 
+class UpdateMatchStatForm(forms.ModelForm):
+
+    corner = forms.ModelChoiceField(queryset=Team.objects.none(), required=False, empty_label="Select Team", widget=forms.Select(
+        attrs = {
+            'class': 'form-control select form-select'
+        }
+    ))
+
+    foul = forms.ModelChoiceField(queryset=Team.objects.none(), required=False, empty_label="Select Team", widget=forms.Select(
+        attrs = {
+            'class': 'form-control select form-select'
+        }
+    ))
+
+    offside = forms.ModelChoiceField(queryset=Team.objects.none(), required=False, empty_label="Select Team", widget=forms.Select(
+        attrs = {
+            'class': 'form-control select form-select'
+        }
+    ))
+
+
+    class Meta:
+        model = MatchStats
+        fields = [
+            'corner',
+            'foul',
+            # 'home_ball_possession',
+            # 'away_ball_possession',
+            'offside'
+        ]
+
+    def __init__(self, request, *args, **kwargs):
+        super(UpdateMatchStatForm, self).__init__(*args, **kwargs)
+
+        match = Match.objects.get(pk = kwargs['instance'].match_id)
+        homeTeam = Team.objects.filter(team_id=match.fixture.home_team.team_id)
+        awayTeam = Team.objects.filter(team_id=match.fixture.away_team.team_id)
+
+        self.fields['corner'].queryset = homeTeam | awayTeam
+        self.fields['foul'].queryset = homeTeam | awayTeam
+        self.fields['offside'].queryset = homeTeam | awayTeam

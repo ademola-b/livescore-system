@@ -11,11 +11,11 @@ from django.views.generic import (View, ListView, FormView,
                                   TemplateView, DeleteView, UpdateView)
 from django.contrib.messages.views import SuccessMessageMixin
 
-from scores_fixtures.models import Match
+from scores_fixtures.models import Match, MatchStats, Fixture
 
 from .forms import (LoginForm, TeamForm,TeamPlayerForm, TeamUpdateForm, 
-                    Tournament, UpdateGoalScorerForm, 
-                    UpdateMatchForm, UpdateMatchStatusForm, UpdateScoreForm)
+                    Tournament, UpdateGoalScorerForm, UpdateCardBookingForm, 
+                    UpdateMatchForm, UpdateMatchStatusForm, UpdateMatchStatForm)
 from tournament.models import Team, Player
 
 
@@ -179,7 +179,8 @@ class UpdateMatch(SuccessMessageMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         match_id = self.kwargs['pk']
-        context["team_name"] = Match.objects.get(id = match_id)
+        # context["team_name"] = Match.objects.get(id = match_id)
+        context["team"] = Match.objects.get(id = match_id)
         return context
     
     # def form_valid(self, request, form):
@@ -192,21 +193,35 @@ class UpdateMatch(SuccessMessageMixin, UpdateView):
     #         messages.warning(request, "An error occurred")
     #         return self.form_invalid(form)
 
+# class UpdateMatchStat(SuccessMessageMixin, UpdateView):
+#     model = MatchStats
+#     template_name = "lvs_auth/update_match_score.html"
+#     success_message = "Match Stats Successfully Updated"
+    
+#     def post()
+
 class UpdateMatchScoreV(SuccessMessageMixin, UpdateView):
     model = Match
     template_name = "lvs_auth/update_match_score.html"
     form_class = UpdateGoalScorerForm
     second_form_class = UpdateMatchStatusForm
+    third_form_class = UpdateCardBookingForm
+    fourth_form_class = UpdateMatchStatForm
 
     def get_context_data(self, **kwargs: Any):
         context = super().get_context_data(**kwargs)
 
         match_id = self.kwargs['pk']
         match = Match.objects.get(pk = match_id)
+        match_stats = MatchStats.objects.update_or_create(match = match)
+        print(f"match_status: {match_stats}")
         context['matchStatusForm'] = self.second_form_class(instance=match)
+        context['matchStatsForm'] = self.fourth_form_class(self.request, instance=match_stats[0])
         
-        # instantiate goalscorerform
+        # instantiate forms
         goalScorerForm = self.form_class()
+        cardBookingForm = self.third_form_class()
+        # matchStatsForm = self.fourth_form_class(self.request, instance=match_stats[0])
 
         # query teams and players to be filled in select box
         homeTeam = Team.objects.filter(team_id=match.fixture.home_team.team_id)
@@ -219,16 +234,27 @@ class UpdateMatchScoreV(SuccessMessageMixin, UpdateView):
         goalScorerForm.fields['scorer'].queryset = homePlayers | awayPlayers
         goalScorerForm.fields['assist'].queryset = homePlayers | awayPlayers
 
+        cardBookingForm.fields['red_card'].queryset = homePlayers | awayPlayers
+        cardBookingForm.fields['yellow_card'].queryset = homePlayers | awayPlayers
+
+        # matchStatsForm.fields['corner'].queryset = homeTeam | awayTeam
+
         context['goalScorerForm'] = goalScorerForm
+        context['cardBookingForm'] = cardBookingForm
+        # context['matchStatsForm'] = matchStatsForm
 
         return context
     
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         match = Match.objects.get(pk = self.kwargs['pk'])
+        match_stats = MatchStats.objects.update_or_create(match = match)
+        
 
         goalScorerForm = self.form_class(request.POST)
         matchStatusForm = self.second_form_class(request.POST, instance=match)
+        cardBookingForm = self.third_form_class(request.POST)
+        matchStatsForm = self.fourth_form_class(request, request.POST, instance=match_stats[0])
 
         homeTeam = Team.objects.filter(team_id=match.fixture.home_team.team_id)
         awayTeam = Team.objects.filter(team_id=match.fixture.away_team.team_id)
@@ -240,41 +266,172 @@ class UpdateMatchScoreV(SuccessMessageMixin, UpdateView):
         goalScorerForm.fields['scorer'].queryset = homePlayers | awayPlayers
         goalScorerForm.fields['assist'].queryset = homePlayers | awayPlayers
 
-        if goalScorerForm.is_valid() and matchStatusForm.is_valid():
-            matchStatusFormData = matchStatusForm.save(commit=False)
-            matchStatusFormData.save()
+        cardBookingForm.fields['red_card'].queryset = homePlayers | awayPlayers
+        cardBookingForm.fields['yellow_card'].queryset = homePlayers | awayPlayers
 
-            goalScorerData = goalScorerForm.save(commit=False)
-            goalScorerData.team = goalScorerForm.cleaned_data['team']
+        print(f"request: {request.POST}")
 
-            if hasattr(self, 'team'):
-                getTeam = Team.objects.get(team_id = goalScorerData.team.team_id)
+        if 'score_btn' in request.POST:
+            if goalScorerForm.is_valid():
+                try:
+                    goalScorerData = goalScorerForm.save(commit=False)
+                    goalScorerData.team = goalScorerForm.cleaned_data['team']
 
-                getPlayer = Player.objects.get(team_id=getTeam)
-                print(f"player_name: {getPlayer}")
+                    print(f"scorer: {type(goalScorerData.scorer)}")
 
-                #increment team's score
-                if getTeam == match.fixture.home_team:
-                    match.home_team_score += 1
-                elif getTeam == match.fixture.away_team:
-                    match.away_team_score += 1
+                    getTeam = Team.objects.get(team_id = goalScorerData.team.team_id)
 
-                #increment player's goals/assist number
-                if getPlayer == goalScorerData.scorer:
-                    print("yes")
-                    getPlayer.goals += 1
+                    print(f"scorer: {(goalScorerData.scorer.name)}")
+                    print(f"scorer: {type(goalScorerData.scorer)}")
+
+                    # get player
+                    getPlayer = Player.objects.get(name = goalScorerData.scorer.name)
+                    print(f"player_name: {getPlayer.name}")
+
+                    #increment team's score
+                    if getTeam == match.fixture.home_team:
+                        match.home_team_score += 1
+                        goalScorerData.home_score = match.home_team_score
+                        print(f"match score: {match.home_team_score}")
+                    elif getTeam == match.fixture.away_team:
+                        match.away_team_score += 1
+
+                        goalScorerData.away_score = match.away_team_score
+                        print(f"match score: {match.away_team_score}")
+
+                    #increment player's goals/assist number
+                    if getPlayer == goalScorerData.scorer:
+                        print("yes")
+                        print(f"goal: {getPlayer.goals}")
+                        # goalScorerData.
+                        getPlayer.goals = getPlayer.goals + 1
+                        print(f"goalN: {getPlayer.goals}")
+                    
+                    if getPlayer == goalScorerData.assist:
+                        getPlayer.assists += 1
+
+                    getPlayer.save()
+                    goalScorerData.match = match
+                    goalScorerData.save()
+                    match.save()
+
+                    print(f"match: {match}")
+
+                    messages.success(request, "Scores Updated Successfully")
+                    return redirect("scores:index")
+                except Team.DoesNotExist:
+                    messages.warning(request, "No Update Made, you didn't select a team")
+                    return redirect("scores:index")
+            else:
+                messages.warning(request, f"An error occurred: {goalScorerForm.errors.as_text()}")
+        
+        if 'status_btn' in request.POST:
+            if  matchStatusForm.is_valid():
+                matchStatusFormData = matchStatusForm.save(commit=False)
+                matchStatusFormData.save() 
+
+                messages.success(request, "Match Updated Successfully")
+                return redirect('scores:index')
+            else:
+                messages.warning(request, f"An error occurred: {matchStatusForm.errors.as_text()}")
+
+        if 'yellow' in request.POST:
+            if cardBookingForm.is_valid():
+                cardBookingFormData = cardBookingForm.save(commit=False)
                 
-                if getPlayer == goalScorerData.assist:
-                    getPlayer.assists += 1
+                try:
+                    getPlayer = Player.objects.get(name = cardBookingFormData.yellow_card.name)
 
-                getPlayer.save()
-                goalScorerData.match = match
-                goalScorerData.save()
+                    cardBookingFormData.match = match
+                    cardBookingFormData.yellow_card = getPlayer
+                    cardBookingFormData.save()
 
-            match.save()
-            messages.success(request, "Scores Updated Successfully")
-            return redirect("scores:index")
-        else:
-            messages.warning(request, f"An error occurred: {goalScorerForm.errors.as_text, matchStatusForm.errors.as_text}")
-            # return self.render_to_response(self.get_context_data(form=form, goalScorerForm=goalScorerForm))
-            return self.render_to_response(self.get_context_data(matchStatusForm=matchStatusForm, goalScorerForm=goalScorerForm))
+                    messages.success(request, "Card successfully booked to player")
+                    return redirect('scores:index')
+                except Player.DoesNotExist:
+                    messages.warning(request, "No player was selected")
+            else:
+                messages.warning(request, f"{cardBookingForm.errors.as_text()}")
+
+        if 'red' in request.POST:
+            if cardBookingForm.is_bound:
+                print('httttt')
+            if cardBookingForm.is_valid():
+                cardBookingFormData = cardBookingForm.save(commit=False)
+                # create or update model
+                
+                try:
+                    getPlayer = Player.objects.get(name = cardBookingFormData.red_card.name)
+
+                    cardBookingFormData.match = match
+                    # cardBookingFormData.red_card = 
+                    cardBookingFormData.save()
+
+                    messages.success(request, "Card successfully booked to player")
+                    return redirect('scores:index')
+                except Player.DoesNotExist:
+                    messages.warning(request, "No player was selected")
+        
+        if 'match_stat_btn' in request.POST:
+            # print(f"ww:{matchStatsForm}")
+            if matchStatsForm.is_bound:
+                print("bounded")
+            if matchStatsForm.is_valid():
+                matchStatsFormData = matchStatsForm.save(commit=False)
+                print(f"corner: {matchStatsForm.cleaned_data['corner']}")
+                #get team
+                try:
+                    if matchStatsForm.cleaned_data['corner'] is not None:
+                        getTeam = Team.objects.get(team_id = matchStatsForm.cleaned_data['corner'].team_id)
+
+                        print(f"team: {getTeam.team_id}")
+
+                        if getTeam == match.fixture.home_team:
+                            print("yes")
+                            matchStatsFormData.home_corner +=1
+                            matchStatsFormData.save()
+                            messages.success(request, "Stats Saved Successfully")
+                        elif getTeam == match.fixture.away_team:
+                            matchStatsFormData.away_corner +=1
+                        else:
+                            messages.error(request, "Invalid Team Selected")
+                    
+                    if matchStatsForm.cleaned_data['foul'] is not None:
+                        getTeam = Team.objects.get(team_id = matchStatsForm.cleaned_data['foul'].team_id)
+
+                        print(f"team: {getTeam.team_id}")
+
+                        if getTeam == match.fixture.home_team:
+                            print("yes")
+                            matchStatsFormData.home_fouls +=1
+                            matchStatsFormData.save()
+                            messages.success(request, "Stats Saved Successfully")
+                        elif getTeam == match.fixture.away_team:
+                            matchStatsFormData.away_fouls +=1
+                        else:
+                            messages.error(request, "Invalid Team Selected")
+            
+                    if matchStatsForm.cleaned_data['offside'] is not None:
+                        getTeam = Team.objects.get(team_id = matchStatsForm.cleaned_data['offside'].team_id)
+
+                        print(f"team: {getTeam.team_id}")
+
+                        if getTeam == match.fixture.home_team:
+                            print("yes")
+                            matchStatsFormData.home_offside +=1
+                            matchStatsFormData.save()
+                            messages.success(request, "Stats Saved Successfully")
+                        elif getTeam == match.fixture.away_team:
+                            matchStatsFormData.away_offside +=1
+                        else:
+                            messages.error(request, "Invalid Team Selected")
+                
+                    return redirect('scores:index')
+                except Team.DoesNotExist:
+                    messages.warning(request, "Team Not Found")
+
+            else:
+                messages.warning(request, f"{matchStatsForm.errors}")
+
+
+        return self.render_to_response(self.get_context_data(matchStatusForm=matchStatusForm, goalScorerForm=goalScorerForm))

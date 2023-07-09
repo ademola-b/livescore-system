@@ -43,12 +43,13 @@
 
                             {% if today_match %}
                             {% for today in today_match %}
-                              {% if request.user.is_staff %} <a href=" {% if today.status == "not_started" %}{% url 'auth:update_match' today.id %} {% else %}{% url 'auth:update_match_score' today.id %}{% endif %}">{% endif %}
+                              {% if request.user.is_staff %} <a href=" {% if today.status == "not_started" %}{% url 'auth:update_match' today.id %} {% else %}{% url 'auth:update_match_score' today.id %}{% endif %}">  {% else %} 
+                                <a href="{% url 'scores:match_summary' today.pk %}">{% endif %}
                                 <div class="bg-image overlay-success rounded mb-5" style="background-image: url( {% static 'assets/img/backgrounds/bg_3.jpg' %} );" hx-get="{% url 'scores:index' %}" hx-trigger="every 2s" hx-swap="innerHTML" data-stellar-background-ratio="0.5">
 
                                   {% include 'utils/match_card.html' %}  
                                 </div>
-                              {% if request.user.is_staff %}</a> {% endif %}
+                              {% if request.user.is_staff %}</a> {% else %}</a> {% endif %}
                                 {% endfor %}
                             {% else %}
                             <p class="text-dark text-center h3"><span class="h3">No Match Today</span></p>

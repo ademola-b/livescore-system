@@ -41,15 +41,37 @@ class GoalScorers(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
     time = models.IntegerField(default=0)
     scorer = models.ForeignKey(Player, related_name='home_scorer', blank=True, null=True, on_delete=models.CASCADE)
-    # away_scorer = models.ForeignKey(Player, related_name='away_scorer', blank=True, null=True, on_delete=models.CASCADE)
     assist = models.ForeignKey(Player, related_name='home_assist', blank=True, null=True, on_delete=models.CASCADE)
-    # away_assist = models.ForeignKey(Player, related_name='away_assist', blank=True, null=True, on_delete=models.CASCADE)
+    home_score = models.IntegerField(default=0, null=True, blank=True)
+    away_score = models.IntegerField(default=0, null=True, blank=True)
 
     class Meta:
         verbose_name_plural = "Goal Scorers"
     def __str__(self):
         return f"""Match: {self.match.fixture.home_team.deptName.deptName} - {self.match.fixture.away_team.deptName.deptName}
                     """
+    
+class Card(models.Model):
+    match = models.ForeignKey(Match, on_delete=models.CASCADE)
+    time = models.IntegerField(default=0)
+    red_card = models.ForeignKey(Player, related_name='red_card', on_delete=models.CASCADE, null=True, blank=True)
+    yellow_card = models.ForeignKey(Player, related_name='yellow_card', on_delete=models.CASCADE, null=True, blank=True)
+
+class MatchStats(models.Model):
+    match = models.ForeignKey(Match, on_delete=models.CASCADE)
+    home_corner = models.IntegerField(default=0)
+    away_corner = models.IntegerField(default=0)
+    home_fouls = models.IntegerField(default=0)
+    away_fouls = models.IntegerField(default=0)
+    home_ball_possession = models.IntegerField(default=0)
+    away_ball_possession = models.IntegerField(default=0)
+    home_offside = models.IntegerField(default=0)
+    away_offside = models.IntegerField(default=0)
+
+    
+
+
+
     
 
 
