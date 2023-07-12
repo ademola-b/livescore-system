@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
-from scores_fixtures.models import GoalScorers, Match, MatchStats, Card
+from scores_fixtures.models import GoalScorers, Match, MatchStats, Card, MatchAdditionalInfo
 
 from tournament.models import Team, Department, Player, Tournament
 
@@ -167,7 +167,7 @@ class UpdateMatchStatusForm(forms.ModelForm):
     match_status = [
     ("not_started", "not_started"),
     ("ON", "ON"),
-    ("HF", "HF"),
+    ("HT", "HT"),
     ("FT", "FT"),
     ("ET", "ET"),
     ("postponed", "postponed"),
@@ -271,3 +271,12 @@ class UpdateMatchStatForm(forms.ModelForm):
         self.fields['corner'].queryset = homeTeam | awayTeam
         self.fields['foul'].queryset = homeTeam | awayTeam
         self.fields['offside'].queryset = homeTeam | awayTeam
+
+class AdditionalInfoForm(forms.ModelForm):
+
+    additional_info = forms.CharField(widget=forms.Textarea(attrs={'id': 'note', 'class': 'form-control', 'placeholder':'Additional Note'}))
+     
+
+    class Meta:
+        model = MatchAdditionalInfo
+        fields = ['additional_info']

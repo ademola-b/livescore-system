@@ -100,13 +100,15 @@
                                     {% if object_list %}
                                         <div class="row align-items-center mx-auto">
                                             {% for obj in object_list %}
-                                            {% if obj.scorer %}
-                                            <p>{{obj.time}}' ⚽ {{obj.scorer}}</p>  
-                                                {% elif obj.red_card %}
-                                                    <p>{{obj.time}}' 🟥 {{obj.red_card}}</p>
-                                                {% elif obj.yellow_card %}
-                                                    <p>{{obj.time}}' 🟨 {{obj.yellow_card}}</p>
-                                                {% endif %}
+                                              {% if obj.scorer %}
+                                                  <p>{{obj.time}}' ⚽ {{obj.scorer}}</p>  
+                                              {% elif obj.red_card %}
+                                                  <p>{{obj.time}}' 🟥 {{obj.red_card}}</p>
+                                              {% elif obj.yellow_card %}
+                                                  <p>{{obj.time}}' 🟨 {{obj.yellow_card}}</p>
+                                              {% elif obj.additional_info %}
+                                                  <p>{{obj.time}}' ℹ️ {{obj.additional_info}}</p>
+                                              {% endif %}
                                             {% endfor %}
                                         </div>
                                     {% else %}

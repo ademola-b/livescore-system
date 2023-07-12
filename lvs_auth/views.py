@@ -15,7 +15,7 @@ from scores_fixtures.models import Match, MatchStats, Fixture
 
 from .forms import (LoginForm, TeamForm,TeamPlayerForm, TeamUpdateForm, 
                     Tournament, UpdateGoalScorerForm, UpdateCardBookingForm, 
-                    UpdateMatchForm, UpdateMatchStatusForm, UpdateMatchStatForm)
+                    UpdateMatchForm, UpdateMatchStatusForm, UpdateMatchStatForm, AdditionalInfoForm)
 from tournament.models import Team, Player
 
 
@@ -218,6 +218,7 @@ class UpdateMatchScoreV(SuccessMessageMixin, UpdateView):
     second_form_class = UpdateMatchStatusForm
     third_form_class = UpdateCardBookingForm
     fourth_form_class = UpdateMatchStatForm
+    fifth_form_class = AdditionalInfoForm
 
     def get_context_data(self, **kwargs: Any):
         context = super().get_context_data(**kwargs)
@@ -228,6 +229,7 @@ class UpdateMatchScoreV(SuccessMessageMixin, UpdateView):
         print(f"match_status: {match_stats}")
         context['matchStatusForm'] = self.second_form_class(instance=match)
         context['matchStatsForm'] = self.fourth_form_class(self.request, instance=match_stats[0])
+        context['additionalInfoForm'] = self.fifth_form_class()
         
         # instantiate forms
         goalScorerForm = self.form_class()
@@ -266,6 +268,7 @@ class UpdateMatchScoreV(SuccessMessageMixin, UpdateView):
         matchStatusForm = self.second_form_class(request.POST, instance=match)
         cardBookingForm = self.third_form_class(request.POST)
         matchStatsForm = self.fourth_form_class(request, request.POST, instance=match_stats[0])
+        additionalInfoForm = self.fifth_form_class(request.POST)
 
         homeTeam = Team.objects.filter(team_id=match.fixture.home_team.team_id)
         awayTeam = Team.objects.filter(team_id=match.fixture.away_team.team_id)
@@ -354,10 +357,11 @@ class UpdateMatchScoreV(SuccessMessageMixin, UpdateView):
                 try:
                     getPlayer = Player.objects.get(name = cardBookingFormData.yellow_card.name)
 
-                    cardBookingFormData.match = match
-                    cardBookingFormData.time = match.time
-                    cardBookingFormData.yellow_card = getPlayer
-                    cardBookingFormData.save()
+                    if getPlayer == cardBookingFormData.yellow_card:
+                        cardBookingFormData.match = match
+                        cardBookingFormData.time = match.time
+                        cardBookingFormData.yellow_card = getPlayer
+                        cardBookingFormData.save()
 
                     messages.success(request, "Card successfully booked to player")
                     return redirect('scores:index')
@@ -376,14 +380,23 @@ class UpdateMatchScoreV(SuccessMessageMixin, UpdateView):
                 try:
                     getPlayer = Player.objects.get(name = cardBookingFormData.red_card.name)
 
-                    cardBookingFormData.match = match
-                    cardBookingFormData.time = match.time
-                    cardBookingFormData.save()
+                
+
+                    if getPlayer == cardBookingFormData.red_card:
+                        cardBookingFormData.match = match
+                        cardBookingFormData.time = match.time
+                        cardBookingFormData.red_card = getPlayer
+                        cardBookingFormData.save()
+
+                    print(f"player: {getPlayer}")
+                    print(f"card player: {cardBookingFormData.red_card.name}")
 
                     messages.success(request, "Card successfully booked to player")
                     return redirect('scores:index')
                 except Player.DoesNotExist:
                     messages.warning(request, "No player was selected")
+        else:
+            messages.warning(request, f"{cardBookingForm.errors.as_text()}")
         
         if 'match_stat_btn' in request.POST:
             # print(f"ww:{matchStatsForm}")
@@ -444,6 +457,21 @@ class UpdateMatchScoreV(SuccessMessageMixin, UpdateView):
                     messages.warning(request, "Team Not Found")
 
             else:
-                messages.warning(request, f"{matchStatsForm.errors}")
+                messages.warning(request, f"{matchStatsForm.errors.as_text()}")
+
+        if 'additional_info_btn' in request.POST:
+            print('hello')
+            if additionalInfoForm.is_bound:
+                print('yes')
+            if additionalInfoForm.is_valid():
+                additionalInfoFormData = additionalInfoForm.save(commit=False)
+
+                additionalInfoFormData.match = match
+                additionalInfoFormData.time = match.time
+                additionalInfoFormData.save()
+                messages.success(request, f"Additional Information added")
+                return redirect('scores:index')
+            else:
+                messages.warning(request, f"{additionalInfoForm.errors.as_text()}")
 
         return self.render_to_response(self.get_context_data(matchStatusForm=matchStatusForm, goalScorerForm=goalScorerForm))

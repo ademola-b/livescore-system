@@ -126,6 +126,26 @@
                                     </div>
                                   </div>
                           </form>
+                          <hr color="blue">
+                          <form action="" method="post">
+                            {% csrf_token %}
+                            <div class="row mb-3">
+                              {% if additionalInfoForm.additional_info.errors %}
+                                <div class="alert alert-danger mt-2" role="alert">
+                                  {{ additionalInfoForm.additional_info.errors }}
+                                </div>
+                              {% endif %}
+                              <label class="col-form-label" for="basic-default-name">Additional Info</label>
+                              <div class="col-12">
+                                  {{additionalInfoForm.additional_info}}
+                              </div>
+                            </div>
+                            <div class="row mb-3">
+                              <div class="col-4">
+                                <button type="submit" class="btn btn-primary" name="additional_info_btn">Submit</button>
+                              </div>
+                            </div>
+                          </form>
                         </div> 
   
                         <div class="col-6">

@@ -10,7 +10,7 @@ from django.views.generic import (ListView, FormView, TemplateView,
 from django.shortcuts import render, redirect
 
 from . forms import FixturesForm
-from . models import Fixture, Tournament, Team, Match, GoalScorers, Card, MatchStats
+from . models import Fixture, Tournament, Team, Match, GoalScorers, Card, MatchStats, MatchAdditionalInfo
 # Create your views here.
 
 class HomeViewL(View):
@@ -27,8 +27,11 @@ class HomeViewL(View):
         context['ended'] = Match.objects.filter(status__in=['postponed', 'FT'])
     
         # match time
-        match = Match.objects.get(fixture__match_date_time__date=current_date)
-        context['match_time'] = match.time
+        try:
+            match = Match.objects.get(fixture__match_date_time__date=current_date)
+            context['match_time'] = match.time
+        except Match.DoesNotExist:
+            return render(request, "scores_fixtures/index.html", context=context)
 
         # print(f"id: {match.id}")
 
@@ -367,11 +370,15 @@ class MatchSummary(ListView):
         match_summary = []
         goalScorers = GoalScorers.objects.filter(match = self.kwargs['pk']).order_by('time')
         cards = Card.objects.filter(match = match).order_by('time')
+        additional_info = MatchAdditionalInfo.objects.filter(match=self.kwargs['pk']).order_by('time')
+
+        print(f"{additional_info}")
 
         match_summary.append(goalScorers)
         match_summary.append(cards)
+        match_summary.append(additional_info)
 
-        merge_qs = list(chain(goalScorers, cards))
+        merge_qs = list(chain(goalScorers, cards, additional_info))
         
         sorted_qs = sorted(merge_qs, key=lambda obj: obj.time)
 
@@ -393,11 +400,11 @@ class MatchSummary(ListView):
             # context['cards'] = Card.objects.filter(match = context['match']).order_by('time')
             context['match_stat'] = MatchStats.objects.filter(match = context['match'])
             # get cards count
-            homeTeamRedCard = Card.objects.filter(red_card__team_id = context['match'].fixture.home_team)
-            awayTeamRedCard = Card.objects.filter(red_card__team_id = context['match'].fixture.away_team)
+            homeTeamRedCard = Card.objects.filter(match = context['match'], red_card__team_id = context['match'].fixture.home_team)
+            awayTeamRedCard = Card.objects.filter(match = context['match'], red_card__team_id = context['match'].fixture.away_team)
 
-            homeTeamYellowCard = Card.objects.filter(yellow_card__team_id = context['match'].fixture.home_team)
-            awayTeamYellowCard = Card.objects.filter(yellow_card__team_id = context['match'].fixture.away_team)
+            homeTeamYellowCard = Card.objects.filter(match = context['match'], yellow_card__team_id = context['match'].fixture.home_team)
+            awayTeamYellowCard = Card.objects.filter(match = context['match'], yellow_card__team_id = context['match'].fixture.away_team)
 
             context['home_yellow'] = len(homeTeamYellowCard)
             context['away_yellow'] = len(awayTeamYellowCard)

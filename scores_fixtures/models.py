@@ -68,6 +68,11 @@ class MatchStats(models.Model):
     home_offside = models.IntegerField(default=0)
     away_offside = models.IntegerField(default=0)
 
+class MatchAdditionalInfo(models.Model):
+    match = models.ForeignKey(Match, on_delete=models.CASCADE)
+    time = models.IntegerField(default=0)
+    additional_info = models.CharField(max_length=1000, null=True, blank=True)
+
     
 
 
