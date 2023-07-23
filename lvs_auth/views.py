@@ -127,6 +127,8 @@ class TeamPlayers(ListView, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['team_pk'] = self.kwargs['pk']
+        team = Team.objects.get(team_id=context['team_pk'])
+        context['team_name'] = team.deptName.deptName
         return context
 
     def post(self, request, pk, *args, **kwargs):

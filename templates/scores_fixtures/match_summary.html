@@ -122,11 +122,11 @@
                                      {% if match_stat %}
                                       
                                         {% for stat in match_stat %}
-                                            <div class="row mb-3">
+                                            {% comment %} <div class="row mb-3">
                                                 <div class="col-4">IDK Yet</div>
                                                 <div class="col-4"><span class="badge bg-info">BALL POSSESSION</span></div>
                                                 <div class="col-4">IDK Yet</div>
-                                            </div>
+                                            </div> {% endcomment %}
                                             <div class="row mb-3">
                                                 <div class="col-4">{{stat.home_corner}}</div>
                                                 <div class="col-4"><span class="badge bg-primary">CORNERS</span></div>
